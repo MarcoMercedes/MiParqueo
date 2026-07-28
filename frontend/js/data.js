@@ -168,7 +168,18 @@ const MiParqueo = (() => {
     async eliminarVehiculo(id) {
       exigirConfig();
       const { error } = await db.from("vehiculos").delete().eq("id", id);
-      if (error) throw fallo(error);
+      if (error) {
+        // 23503: el vehículo ya tiene historial de parqueos o reportes.
+        // Borrarlo dejaría huérfano ese historial, que es justamente la
+        // prueba de quién parqueó dónde.
+        if (error.code === "23503") {
+          throw new Error(
+            "No puedes eliminar este vehículo porque ya tiene historial de parqueos. " +
+              "Si dejaste de usarlo, avisa a administración."
+          );
+        }
+        throw fallo(error);
+      }
     },
 
     // ---------- Parqueo ----------

@@ -11,9 +11,11 @@
 
   const $ = (id) => document.getElementById(id);
 
+  // Sin sesión no se ve nada de la aplicación: lo primero y lo único
+  // es el acceso.
   const VISTAS = {
-    inicio: { seccion: "vistaInicio" },
     entrar: { seccion: "vistaEntrar", soloInvitado: true },
+    inicio: { seccion: "vistaInicio", requiereSesion: true },
     panel: { seccion: "vistaPanel", requiereSesion: true },
     admin: { seccion: "vistaAdmin", requiereAdmin: true },
   };
@@ -42,7 +44,7 @@
   // ---------- Navegación ----------
 
   function irA(nombre, { reemplazar = false } = {}) {
-    let destino = VISTAS[nombre] ? nombre : "inicio";
+    let destino = VISTAS[nombre] ? nombre : (perfil ? "inicio" : "entrar");
     const v = VISTAS[destino];
 
     // Reglas de acceso: nadie llega a donde no le toca, ni escribiendo
@@ -78,7 +80,8 @@
 
   function vistaDeLaDireccion() {
     const nombre = location.hash.replace(/^#/, "");
-    return VISTAS[nombre] ? nombre : "inicio";
+    if (VISTAS[nombre]) return nombre;
+    return perfil ? "inicio" : "entrar";
   }
 
   // Cualquier elemento con data-ir cambia de sección.
@@ -89,7 +92,10 @@
     irA(disparador.dataset.ir);
   });
 
+  // popstate cubre el botón atrás; hashchange cubre que alguien escriba
+  // la dirección a mano.
   window.addEventListener("popstate", () => irA(vistaDeLaDireccion(), { reemplazar: true }));
+  window.addEventListener("hashchange", () => irA(vistaDeLaDireccion(), { reemplazar: true }));
 
   // ---------- Acceso ----------
 
@@ -145,7 +151,8 @@
         formEntrar.reset();
         avisoAcceso.hidden = true;
         await releerPerfil();
-        irA("panel");
+        Disponibilidad.iniciar();
+        irA("inicio");
         return;
       }
 
@@ -168,7 +175,7 @@
     perfil = null;
     Panel.reiniciar();
     pintarSesion();
-    irA("inicio");
+    irA("entrar");
   });
 
   // ---------- Modales (comunes a todas las secciones) ----------
@@ -187,7 +194,6 @@
 
   (async function iniciar() {
     pintarModoAcceso();
-    Disponibilidad.iniciar();
 
     if (!MiParqueo.configurado) {
       avisarAcceso(
@@ -197,8 +203,9 @@
       $("btnEnviar").disabled = true;
     } else {
       // Se espera a saber si hay sesión antes de decidir la vista:
-      // asi el enlace magico del correo no cae en la pantalla de acceso.
+      // así el enlace mágico del correo no cae en la pantalla de acceso.
       await releerPerfil();
+      if (perfil) Disponibilidad.iniciar();
     }
 
     $("cargando").hidden = true;

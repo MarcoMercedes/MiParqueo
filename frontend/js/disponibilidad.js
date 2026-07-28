@@ -13,6 +13,7 @@ const Disponibilidad = (() => {
   const liveLabel = document.getElementById("liveLabel");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const previos = new Map();
+  let iniciada = false;
 
   function estadoDeZona(libres, capacidad) {
     if (libres === 0) return { sufijo: "lleno", texto: "Llena" };
@@ -113,7 +114,11 @@ const Disponibilidad = (() => {
   return {
     refrescar,
 
+    // Se llama al entrar con sesión; repetirla no hace nada.
     iniciar() {
+      if (iniciada) return;
+      iniciada = true;
+
       ["a1", "b1", "pg"].forEach((id) => {
         const g = document.getElementById(`mapa-${id}`);
         if (!g) return;

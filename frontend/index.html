@@ -20,16 +20,15 @@
         <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
       </a>
 
-      <nav class="nav" aria-label="Secciones">
+      <nav class="nav" aria-label="Secciones" data-si-sesion hidden>
         <button class="nav__enlace nav__enlace--activo" data-ir="inicio">Disponibilidad</button>
-        <button class="nav__enlace" data-ir="panel" data-si-sesion hidden>Mi parqueo</button>
+        <button class="nav__enlace" data-ir="panel">Mi parqueo</button>
         <button class="nav__enlace" data-ir="admin" data-si-admin hidden>Administración</button>
       </nav>
 
       <div class="topbar__usuario">
         <span class="usuario__nombre" id="usuarioNombre" data-si-sesion hidden></span>
-        <button class="btn btn--ghost" data-ir="entrar" data-si-invitado>Entrar</button>
-        <button class="btn btn--ghost" id="btnSalir" data-si-sesion hidden>Salir</button>
+        <button class="btn btn--outline btn--mini" id="btnSalir" data-si-sesion hidden>Cerrar sesión</button>
       </div>
     </div>
   </header>
@@ -179,8 +178,11 @@
   <section class="vista vista--centrada" id="vistaEntrar" hidden>
     <div class="acceso">
       <div class="tarjeta">
-        <h1 class="tarjeta__titulo">Entrar</h1>
-        <p class="tarjeta__sub">Con tu correo institucional de la PUCMM.</p>
+        <h1 class="tarjeta__titulo">Entrar a MiParqueo</h1>
+        <p class="tarjeta__sub">
+          Necesitas tu cuenta institucional de la PUCMM para ver la
+          disponibilidad y solicitar parqueo.
+        </p>
 
         <form id="formEntrar" class="formulario" novalidate>
           <label class="campo">
@@ -212,8 +214,8 @@
           </button>
         </p>
 
-        <p class="tarjeta__pie">
-          <button class="enlace" type="button" data-ir="inicio">Ver la disponibilidad sin entrar</button>
+        <p class="tarjeta__pie tarjeta__pie--nota">
+          Campus Santo Tomás de Aquino · Santo Domingo
         </p>
       </div>
     </div>
