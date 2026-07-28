@@ -45,17 +45,14 @@ configuración toma unos diez minutos: [supabase/README.md](supabase/README.md).
 ```
 miparqueo/
 ├── frontend/
-│   ├── index.html                 Acceso (raíz: login, o al panel si ya entraste)
-│   ├── disponibilidad.html        Disponibilidad pública (incluye el mapa SVG)
-│   ├── app.html                   Panel del usuario
-│   ├── admin.html                 Panel del administrador
+│   ├── index.html                 La aplicación entera: una sola página
 │   ├── css/styles.css             Paleta institucional + semáforo
 │   ├── js/config.js               Credenciales de Supabase
 │   ├── js/data.js                 Único punto de contacto con Supabase
-│   ├── js/app.js                  Página pública
-│   ├── js/entrar.js               Acceso
-│   ├── js/panel.js                Panel del usuario
-│   ├── js/admin.js                Panel del administrador
+│   ├── js/app.js                  Controlador: qué sección se ve, y el acceso
+│   ├── js/disponibilidad.js       Mapa del campus y zonas
+│   ├── js/panel.js                Mi parqueo
+│   ├── js/admin.js                Administración
 │   └── assets/                    Favicon, mapa y foto del campus
 ├── supabase/
 │   ├── migrations/0001_esquema_inicial.sql   Todo el sistema en un script

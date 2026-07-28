@@ -13,10 +13,10 @@ antes de necesitarla.
 │         Frontend         │ ◄───────────────────► │         Supabase         │
 │   (HTML/CSS/JS estático) │  supabase-js:         │  ┌────────────────────┐  │
 │                          │  - auth (enlace       │  │ PostgreSQL         │  │
-│  index.html   acceso     │    o contraseña)      │  │  perfiles          │  │
-│  disponibilidad.html     │  - vista              │  │  zonas / espacios  │  │
-│  app.html     usuario    │    disponibilidad     │  │  vehiculos         │  │
-│  admin.html   admin      │  - funciones RPC      │  │  asignaciones      │  │
+│  index.html · una sola   │    o contraseña)      │  │  perfiles          │  │
+│  página con cuatro       │  - vista              │  │  zonas / espacios  │  │
+│  secciones: inicio,      │    disponibilidad     │  │  vehiculos         │  │
+│  acceso, panel y admin   │  - funciones RPC      │  │  asignaciones      │  │
 │                          │  - Realtime (ws)      │  │  reportes          │  │
 └──────────────────────────┘  - Storage (fotos)    │  │  apelaciones       │  │
                                                    │  └────────────────────┘  │

@@ -396,11 +396,16 @@ img { max-width: 100%; display: block; }
 @media (max-width: 900px) {
   .panel { grid-template-columns: 1fr; }
 }
+@media (max-width: 760px) {
+  .topbar__inner { flex-wrap: wrap; gap: 0.4rem; }
+  .nav { order: 3; width: 100%; justify-content: flex-start; overflow-x: auto; }
+}
 @media (max-width: 520px) {
   .hero { min-height: 66vh; }
   .zonas { margin-top: -2.5rem; }
   .topbar__inner { padding: 0.5rem 0.9rem; }
   .usuario__nombre { display: none; }
+  .nav__enlace { padding: 0.45rem 0.7rem; font-size: 0.85rem; }
 }
 
 
@@ -412,8 +417,20 @@ img { max-width: 100%; display: block; }
 .topbar__usuario { display: flex; align-items: center; gap: 0.4rem; }
 .usuario__nombre { font-size: 0.9rem; font-weight: 600; color: var(--gris); }
 
-/* ---------- Página de acceso ---------- */
-.pagina--centrada { display: grid; place-items: center; min-height: 100vh; padding: 1.5rem; }
+/* ---------- Navegación entre secciones ---------- */
+.nav { display: flex; gap: 0.15rem; flex: 1; justify-content: center; }
+.nav__enlace {
+  font-family: var(--texto); font-size: 0.92rem; font-weight: 600;
+  background: none; border: none; border-radius: 999px;
+  padding: 0.5rem 0.95rem; cursor: pointer;
+  color: var(--gris); white-space: nowrap;
+}
+.nav__enlace:hover { background: var(--azul-claro); color: var(--azul); }
+.nav__enlace:focus-visible { outline: 3px solid var(--dorado); }
+.nav__enlace--activo { background: var(--azul-claro); color: var(--azul); }
+
+/* ---------- Sección de acceso ---------- */
+.vista--centrada { display: grid; place-items: center; padding: 3rem 1.5rem; min-height: 70vh; }
 .acceso { width: 100%; max-width: 420px; }
 .brand--centrada { justify-content: center; margin-bottom: 1.25rem; }
 

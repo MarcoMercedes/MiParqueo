@@ -3,66 +3,495 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrar · MiParqueo</title>
+  <title>MiParqueo · PUCMM Santo Domingo</title>
+  <meta name="description" content="Consulta en tiempo real la disponibilidad de parqueos en el campus Santo Tomás de Aquino de la PUCMM." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 </head>
-<body class="pagina--centrada">
+<body>
 
-  <main class="acceso">
-    <a class="brand brand--centrada" href="disponibilidad.html">
-      <span class="brand__mark" aria-hidden="true">P</span>
-      <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
-    </a>
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="#inicio" data-ir="inicio">
+        <span class="brand__mark" aria-hidden="true">P</span>
+        <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
+      </a>
 
-    <div class="tarjeta">
-      <h1 class="tarjeta__titulo">Entrar</h1>
-      <p class="tarjeta__sub">Con tu correo institucional de la PUCMM.</p>
+      <nav class="nav" aria-label="Secciones">
+        <button class="nav__enlace nav__enlace--activo" data-ir="inicio">Disponibilidad</button>
+        <button class="nav__enlace" data-ir="panel" data-si-sesion hidden>Mi parqueo</button>
+        <button class="nav__enlace" data-ir="admin" data-si-admin hidden>Administración</button>
+      </nav>
 
-      <form id="formEntrar" class="formulario" novalidate>
+      <div class="topbar__usuario">
+        <span class="usuario__nombre" id="usuarioNombre" data-si-sesion hidden></span>
+        <button class="btn btn--ghost" data-ir="entrar" data-si-invitado>Entrar</button>
+        <button class="btn btn--ghost" id="btnSalir" data-si-sesion hidden>Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+  <!-- ==================================================================
+       VISTA: DISPONIBILIDAD (inicio)
+       ================================================================== -->
+  <section class="vista" id="vistaInicio">
+
+    <div class="hero">
+      <div class="hero__media" aria-hidden="true">
+        <img src="assets/campus.jpg" alt=""
+             onerror="this.closest('.hero__media').classList.add('hero__media--fallback'); this.remove();" />
+      </div>
+      <div class="hero__scrim" aria-hidden="true"></div>
+      <svg class="hero__skyline" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+        <g fill="#082c50">
+          <rect x="0" y="150" width="1200" height="40"/>
+          <rect x="80" y="96" width="130" height="60" rx="4"/>
+          <rect x="230" y="116" width="90" height="40" rx="4"/>
+          <rect x="410" y="60" width="46" height="96" rx="3"/>
+          <rect x="402" y="52" width="62" height="12" rx="4"/>
+          <rect x="480" y="100" width="150" height="56" rx="4"/>
+          <rect x="660" y="120" width="110" height="36" rx="4"/>
+          <rect x="880" y="88" width="140" height="68" rx="4"/>
+          <path d="M355 156 q-4 -38 -18 -50 q16 6 20 22 q2 -30 -8 -46 q18 10 20 40 q6 -24 18 -30 q-10 18 -8 64 z"/>
+          <path d="M1075 156 q-4 -34 -16 -45 q14 5 18 20 q2 -27 -7 -41 q16 9 18 36 q5 -21 16 -27 q-9 16 -7 57 z"/>
+        </g>
+      </svg>
+      <div class="hero__content">
+        <p class="hero__eyebrow">Campus Santo Tomás de Aquino · Santo Domingo</p>
+        <h1 class="hero__title">¿Dónde parqueo hoy?</h1>
+        <p class="hero__sub">Mira los espacios libres por zona antes de entrar al campus.</p>
+        <a class="btn btn--primary btn--lg" href="#zonas">Ver disponibilidad</a>
+        <p class="hero__meta" id="heroMeta">Actualizando…</p>
+      </div>
+    </div>
+
+    <section class="zonas" id="zonas" aria-labelledby="zonasTitle">
+      <div class="zonas__head">
+        <h2 id="zonasTitle">Disponibilidad por zona</h2>
+        <span class="live" aria-live="polite"><span class="live__dot" aria-hidden="true"></span> <span id="liveLabel">En vivo</span></span>
+      </div>
+
+      <div class="panel">
+        <div class="mapa" role="group" aria-label="Mapa de zonas de parqueo de la PUCMM">
+          <div class="mapaReal">
+            <img src="assets/mapa_pucmm.svg" alt="Mapa del sector de la PUCMM con las zonas resaltadas" />
+            <svg class="mapaReal__overlay" viewBox="0 0 469 699" xmlns="http://www.w3.org/2000/svg">
+              <g id="mapa-a1" class="puntoMapa" tabindex="0" role="button" aria-label="Zona A1">
+                <ellipse class="puntoMapa__area" cx="285" cy="203" rx="101" ry="44"/>
+                <g class="puntoMapa__pill" transform="translate(285,140)">
+                  <rect x="-56" y="-19" width="112" height="38" rx="19"/>
+                  <text class="puntoMapa__zona" x="-38" y="6">A1</text>
+                  <text class="puntoMapa__num" id="mapa-a1-num" x="14" y="-1">—</text>
+                  <text class="puntoMapa__lbl" x="14" y="13">libres</text>
+                </g>
+              </g>
+              <g id="mapa-b1" class="puntoMapa" tabindex="0" role="button" aria-label="Zona B1">
+                <ellipse class="puntoMapa__area" cx="282" cy="565" rx="112" ry="57"/>
+                <g class="puntoMapa__pill" transform="translate(282,486)">
+                  <rect x="-56" y="-19" width="112" height="38" rx="19"/>
+                  <text class="puntoMapa__zona" x="-38" y="6">B1</text>
+                  <text class="puntoMapa__num" id="mapa-b1-num" x="14" y="-1">—</text>
+                  <text class="puntoMapa__lbl" x="14" y="13">libres</text>
+                </g>
+              </g>
+              <g id="mapa-pg" class="puntoMapa" tabindex="0" role="button" aria-label="Zona Posgrado">
+                <circle class="puntoMapa__area" cx="50" cy="190" r="31"/>
+                <g class="puntoMapa__pill" transform="translate(114,152)">
+                  <rect x="-56" y="-19" width="112" height="38" rx="19"/>
+                  <text class="puntoMapa__zona" x="-38" y="6">PG</text>
+                  <text class="puntoMapa__num" id="mapa-pg-num" x="14" y="-1">—</text>
+                  <text class="puntoMapa__lbl" x="14" y="13">libres</text>
+                </g>
+                <line class="puntoMapa__nexo" x1="72" y1="168" x2="76" y2="160"/>
+              </g>
+            </svg>
+          </div>
+          <div class="mapa__leyendaEstados" aria-hidden="true">
+            <span><i class="dot dot--ok"></i> Con espacios</span>
+            <span><i class="dot dot--medio"></i> Casi llena</span>
+            <span><i class="dot dot--lleno"></i> Llena</span>
+          </div>
+          <p class="mapa__ayuda">Toca una zona del mapa para ver su detalle.</p>
+        </div>
+
+        <div class="zonas__cards" id="zonasGrid">
+          <noscript><p>Activa JavaScript para ver la disponibilidad en vivo.</p></noscript>
+        </div>
+      </div>
+
+      <p class="zonas__nota">Los espacios se actualizan cada vez que alguien solicita uno o marca su salida.</p>
+    </section>
+
+    <section class="pasos" aria-labelledby="pasosTitle">
+      <h2 id="pasosTitle">Así de simple</h2>
+      <ol class="pasos__list">
+        <li class="paso">
+          <span class="paso__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <h3>Mira la zona</h3>
+          <p>Abre la página y revisa dónde hay espacios antes de llegar.</p>
+        </li>
+        <li class="paso">
+          <span class="paso__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a7 7 0 1 1 14 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>
+          </span>
+          <h3>Solicita tu espacio</h3>
+          <p>La app te asigna uno numerado y te lo reserva por seis horas.</p>
+        </li>
+        <li class="paso">
+          <span class="paso__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+          </span>
+          <h3>Marca tu salida</h3>
+          <p>Al irte lo liberas para el siguiente. Si te quedas más, extiendes seis horas.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section class="acciones" aria-labelledby="accionesTitle">
+      <h2 id="accionesTitle" class="visually-hidden">Acciones</h2>
+      <div class="acciones__grid">
+        <article class="accion accion--registro">
+          <h3>Entra con tu correo institucional</h3>
+          <p>Registras tu vehículo una vez y ya puedes solicitar parqueo en la zona que quieras.</p>
+          <button class="btn btn--primary" data-ir="entrar" data-si-invitado>Entrar</button>
+          <button class="btn btn--primary" data-ir="panel" data-si-sesion hidden>Ir a mi parqueo</button>
+        </article>
+        <article class="accion accion--reporte">
+          <h3>¿Alguien se puso en tu espacio?</h3>
+          <p>Repórtalo con foto: te asignamos otro al instante y un administrador revisa el caso.</p>
+          <button class="btn btn--outline" data-ir="panel">Ir a mi parqueo</button>
+        </article>
+      </div>
+    </section>
+  </section>
+
+
+  <!-- ==================================================================
+       VISTA: ACCESO
+       ================================================================== -->
+  <section class="vista vista--centrada" id="vistaEntrar" hidden>
+    <div class="acceso">
+      <div class="tarjeta">
+        <h1 class="tarjeta__titulo">Entrar</h1>
+        <p class="tarjeta__sub">Con tu correo institucional de la PUCMM.</p>
+
+        <form id="formEntrar" class="formulario" novalidate>
+          <label class="campo">
+            <span class="campo__etiqueta">Correo institucional</span>
+            <input class="campo__input" type="email" id="correo" name="correo"
+                   placeholder="tunombre@ce.pucmm.edu.do" autocomplete="email" required />
+          </label>
+
+          <label class="campo" id="campoClave">
+            <span class="campo__etiqueta">Contraseña</span>
+            <input class="campo__input" type="password" id="clave" name="clave"
+                   autocomplete="current-password" />
+          </label>
+
+          <label class="campo" id="campoNombre" hidden>
+            <span class="campo__etiqueta">Nombre completo</span>
+            <input class="campo__input" type="text" id="nombre" name="nombre"
+                   placeholder="Como aparece en tu carnet" autocomplete="name" />
+          </label>
+
+          <button class="btn btn--primary btn--bloque" type="submit" id="btnEnviar">Entrar</button>
+        </form>
+
+        <p class="aviso" id="avisoAcceso" hidden></p>
+
+        <p class="tarjeta__alterna">
+          <button class="enlace" type="button" id="btnAlternar">
+            ¿Primera vez? Entrar con un enlace por correo
+          </button>
+        </p>
+
+        <p class="tarjeta__pie">
+          <button class="enlace" type="button" data-ir="inicio">Ver la disponibilidad sin entrar</button>
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==================================================================
+       VISTA: MI PARQUEO
+       ================================================================== -->
+  <section class="vista" id="vistaPanel" hidden>
+    <div class="panelUsuario">
+      <p class="aviso" id="avisoPanel" hidden></p>
+
+      <section class="bloque bloque--sancion" id="bloqueSancion" hidden>
+        <h2>Acceso al parqueo suspendido</h2>
+        <p>
+          Tienes <strong id="strikesTotal">3</strong> reportes validados en tu contra.
+          No puedes solicitar parqueo y se te aplicará la multa correspondiente.
+          Si crees que hay un error, apela los reportes más abajo.
+        </p>
+      </section>
+
+      <section class="bloque bloque--activo" id="bloqueActivo" hidden>
+        <p class="bloque__eyebrow">Tu parqueo</p>
+        <p class="espacio__codigo" id="espacioCodigo">—</p>
+        <p class="espacio__zona" id="espacioZona">—</p>
+
+        <div class="contador" id="contador">
+          <span class="contador__tiempo" id="contadorTiempo">—</span>
+          <span class="contador__etiqueta">restantes</span>
+        </div>
+        <div class="contador__barra"><span id="contadorBarra"></span></div>
+
+        <p class="espacio__vehiculo" id="espacioVehiculo">—</p>
+
+        <div class="acciones__fila">
+          <button class="btn btn--primary" id="btnSalida">Marcar mi salida</button>
+          <button class="btn btn--outline" id="btnExtender">Extender 6 horas más</button>
+          <button class="btn btn--peligro" id="btnReportar">Hay alguien en mi espacio</button>
+        </div>
+        <p class="nota" id="notaExtensiones"></p>
+      </section>
+
+      <section class="bloque bloque--alerta" id="bloqueVencido" hidden>
+        <h2>Tu tiempo se venció</h2>
+        <p>
+          Tu espacio quedó libre y puede asignarse a otra persona.
+          <strong>Si sigues parqueado ahí, esa persona puede reportarte y recibirías un strike.</strong>
+          Si aún estás en el campus, solicita un espacio de nuevo.
+        </p>
+        <button class="btn btn--ghost" id="btnEntendidoVencido">Entendido</button>
+      </section>
+
+      <section class="bloque" id="bloqueSolicitar" hidden>
+        <h2 class="bloque__titulo">Solicitar parqueo</h2>
+        <div class="campo campo--inline" id="selectorVehiculo">
+          <label class="campo__etiqueta" for="vehiculoActivo">¿Con cuál vehículo?</label>
+          <select class="campo__input" id="vehiculoActivo"></select>
+        </div>
+        <div class="zonasSolicitar" id="zonasSolicitar"></div>
+      </section>
+
+      <section class="bloque" id="bloqueVehiculos">
+        <h2 class="bloque__titulo">Mis vehículos</h2>
+        <p class="nota" id="notaVehiculos">
+          Necesitas al menos un vehículo registrado para solicitar parqueo.
+          La placa es lo que permite identificar a quien ocupe tu espacio.
+        </p>
+
+        <ul class="lista" id="listaVehiculos"></ul>
+
+        <form class="formulario formulario--grid" id="formVehiculo">
+          <label class="campo">
+            <span class="campo__etiqueta">Placa</span>
+            <input class="campo__input" id="vPlaca" placeholder="A123456" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Marca</span>
+            <input class="campo__input" id="vMarca" placeholder="Toyota" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Modelo</span>
+            <input class="campo__input" id="vModelo" placeholder="Corolla" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Color</span>
+            <input class="campo__input" id="vColor" placeholder="Gris" required />
+          </label>
+          <button class="btn btn--primary" type="submit">Registrar vehículo</button>
+        </form>
+      </section>
+
+      <section class="bloque" id="bloqueMisReportes" hidden>
+        <h2 class="bloque__titulo">Reportes en mi contra</h2>
+        <p class="nota">
+          Un reporte solo cuenta como strike si un administrador lo valida
+          revisando la evidencia. Puedes apelar cualquiera de ellos.
+        </p>
+        <ul class="lista" id="listaMisReportes"></ul>
+      </section>
+
+      <section class="bloque" id="bloqueHistorial" hidden>
+        <h2 class="bloque__titulo">Mi historial</h2>
+        <ul class="lista lista--compacta" id="listaHistorial"></ul>
+      </section>
+    </div>
+  </section>
+
+
+  <!-- ==================================================================
+       VISTA: ADMINISTRACIÓN
+       ================================================================== -->
+  <section class="vista" id="vistaAdmin" hidden>
+    <div class="panelUsuario">
+      <p class="aviso" id="avisoAdmin" hidden></p>
+
+      <nav class="pestanas" role="tablist">
+        <button class="pestana pestana--activa" data-vista="reportes" role="tab">Reportes</button>
+        <button class="pestana" data-vista="apelaciones" role="tab">Apelaciones</button>
+        <button class="pestana" data-vista="espacios" role="tab">Espacios</button>
+      </nav>
+
+      <section class="bloque" id="adminReportes">
+        <h2 class="bloque__titulo">Reportes por revisar</h2>
+        <p class="nota">
+          Un reporte solo se convierte en strike si lo validas aquí. Con tres strikes
+          validados el usuario pierde el acceso al parqueo y se le aplica la multa.
+          Revisa la evidencia antes de decidir.
+        </p>
+
+        <div class="filtros">
+          <button class="btn btn--outline btn--mini filtro filtro--activo" data-estado="pendiente">Pendientes</button>
+          <button class="btn btn--outline btn--mini filtro" data-estado="validado">Validados</button>
+          <button class="btn btn--outline btn--mini filtro" data-estado="rechazado">Rechazados</button>
+        </div>
+
+        <ul class="lista" id="listaReportes"></ul>
+      </section>
+
+      <section class="bloque" id="adminApelaciones" hidden>
+        <h2 class="bloque__titulo">Apelaciones por resolver</h2>
+        <p class="nota">
+          Si aceptas la apelación, el reporte pasa a rechazado y el strike desaparece
+          del expediente del usuario.
+        </p>
+        <ul class="lista" id="listaApelaciones"></ul>
+      </section>
+
+      <section class="bloque" id="adminEspacios" hidden>
+        <h2 class="bloque__titulo">Espacios del campus</h2>
+        <p class="nota">
+          Deshabilita un espacio para que deje de asignarse: mantenimiento cerca,
+          reserva institucional o cualquier motivo. Deja de contar en la disponibilidad
+          de inmediato.
+        </p>
+
+        <div class="filtros">
+          <label class="campo campo--inline">
+            <span class="campo__etiqueta">Zona</span>
+            <select class="campo__input" id="filtroZona">
+              <option value="a1">Zona A1</option>
+              <option value="b1">Zona B1</option>
+              <option value="pg">Posgrado</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="rejillaEspacios" id="rejillaEspacios"></div>
+        <p class="nota">
+          <span class="chip chip--libre"></span> habilitado ·
+          <span class="chip chip--bloqueado"></span> deshabilitado
+        </p>
+      </section>
+    </div>
+  </section>
+
+  </main>
+
+  <p class="cargando" id="cargando">Cargando…</p>
+
+  <footer class="footer">
+    <p><strong>MiParqueo</strong> · Proyecto Integrador de Software · PUCMM</p>
+    <p class="footer__mini">Campus Santo Tomás de Aquino, Santo Domingo.</p>
+  </footer>
+
+
+  <!-- ====== MODAL: REPORTAR OCUPACIÓN ====== -->
+  <div class="modal" id="modalReporte" role="dialog" aria-modal="true" aria-labelledby="tituloReporte" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card modal__card--ancha">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloReporte">Hay alguien en mi espacio</h3>
+      <p>
+        Se creará un reporte y te asignaremos otro espacio libre en la misma zona.
+        Mientras más completa la evidencia, más fácil le será al administrador validarlo.
+      </p>
+
+      <form class="formulario" id="formReporte">
         <label class="campo">
-          <span class="campo__etiqueta">Correo institucional</span>
-          <input class="campo__input" type="email" id="correo" name="correo"
-                 placeholder="tunombre@ce.pucmm.edu.do" autocomplete="email" required />
+          <span class="campo__etiqueta">Placa del vehículo que está en tu espacio</span>
+          <input class="campo__input" id="rPlaca" placeholder="A123456" required />
         </label>
-
-        <label class="campo" id="campoClave">
-          <span class="campo__etiqueta">Contraseña</span>
-          <input class="campo__input" type="password" id="clave" name="clave"
-                 autocomplete="current-password" />
+        <label class="campo">
+          <span class="campo__etiqueta">¿Qué pasó?</span>
+          <textarea class="campo__input" id="rDescripcion" rows="3"
+                    placeholder="Ej.: llegué a las 9:10 y el A1-037 ya estaba ocupado por este vehículo." required></textarea>
         </label>
-
-        <label class="campo" id="campoNombre" hidden>
-          <span class="campo__etiqueta">Nombre completo</span>
-          <input class="campo__input" type="text" id="nombre" name="nombre"
-                 placeholder="Como aparece en tu carnet" autocomplete="name" />
+        <label class="campo">
+          <span class="campo__etiqueta">Foto de evidencia</span>
+          <input class="campo__input campo__input--archivo" id="rFoto" type="file" accept="image/*" capture="environment" />
+          <span class="campo__ayuda">Que se vea la placa y el número del espacio si es posible.</span>
         </label>
-
-        <button class="btn btn--primary btn--bloque" type="submit" id="btnEnviar">
-          Entrar
+        <p class="nota" id="rMeta"></p>
+        <button class="btn btn--peligro btn--bloque" type="submit" id="btnEnviarReporte">
+          Reportar y asignarme otro espacio
         </button>
       </form>
-
-      <p class="aviso" id="aviso" hidden></p>
-
-      <p class="tarjeta__alterna">
-        <button class="enlace" type="button" id="btnAlternar">
-          ¿Primera vez? Entrar con un enlace por correo
-        </button>
-      </p>
-
-      <p class="tarjeta__pie">
-        <a href="disponibilidad.html">Ver la disponibilidad sin entrar</a>
-      </p>
     </div>
-  </main>
+  </div>
+
+  <!-- ====== MODAL: APELAR ====== -->
+  <div class="modal" id="modalApelacion" role="dialog" aria-modal="true" aria-labelledby="tituloApelacion" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloApelacion">Apelar este reporte</h3>
+      <p>Explica por qué el reporte no procede. Un administrador lo revisará.</p>
+      <form class="formulario" id="formApelacion">
+        <label class="campo">
+          <span class="campo__etiqueta">Tu explicación</span>
+          <textarea class="campo__input" id="aTexto" rows="4" required
+                    placeholder="Ej.: ese día mi vehículo estaba en el taller, adjunto factura."></textarea>
+        </label>
+        <button class="btn btn--primary btn--bloque" type="submit">Enviar apelación</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: RESOLVER (admin) ====== -->
+  <div class="modal" id="modalResolver" role="dialog" aria-modal="true" aria-labelledby="tituloResolver" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloResolver">Resolver</h3>
+      <p id="textoResolver">—</p>
+      <form class="formulario" id="formResolver">
+        <label class="campo">
+          <span class="campo__etiqueta">Nota (queda visible para el usuario)</span>
+          <textarea class="campo__input" id="notaResolver" rows="3"
+                    placeholder="Ej.: la foto muestra claramente la placa en el espacio A1-037."></textarea>
+        </label>
+        <button class="btn btn--primary btn--bloque" type="submit" id="btnConfirmarResolver">Confirmar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: DESHABILITAR ESPACIO (admin) ====== -->
+  <div class="modal" id="modalEspacio" role="dialog" aria-modal="true" aria-labelledby="tituloEspacio" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloEspacio">Deshabilitar espacio</h3>
+      <form class="formulario" id="formEspacio">
+        <label class="campo">
+          <span class="campo__etiqueta">Motivo</span>
+          <input class="campo__input" id="motivoEspacio" placeholder="Mantenimiento eléctrico" required />
+        </label>
+        <button class="btn btn--primary btn--bloque" type="submit">Deshabilitar</button>
+      </form>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/entrar.js"></script>
+  <script src="js/disponibilidad.js"></script>
+  <script src="js/panel.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

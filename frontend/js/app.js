@@ -1,160 +1,207 @@
 /* ============================================================
-   MiParqueo · página pública
-   - Muestra la disponibilidad real por zona.
-   - Anima los contadores cuando cambian.
-   - Sincroniza mapa <-> tarjetas.
-   Si no hay conexión con Supabase se dice claramente; nunca se
-   inventan números.
+   MiParqueo · controlador de la aplicación
+
+   Una sola página. Aquí se decide qué sección se ve, quién ha
+   iniciado sesión y qué puede hacer. Cada sección vive en su
+   propio archivo (disponibilidad, panel, admin) y este las llama.
    ============================================================ */
 
 (function () {
   "use strict";
 
-  const grid = document.getElementById("zonasGrid");
-  const heroMeta = document.getElementById("heroMeta");
-  const liveLabel = document.getElementById("liveLabel");
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const $ = (id) => document.getElementById(id);
 
-  // ---------- Estado según ocupación ----------
-  function estadoDeZona(libres, capacidad) {
-    if (libres === 0) return { sufijo: "lleno", texto: "Llena" };
-    if (capacidad > 0 && libres / capacidad <= 0.2) return { sufijo: "medio", texto: "Casi llena" };
-    return { sufijo: "ok", texto: "Con espacios" };
+  const VISTAS = {
+    inicio: { seccion: "vistaInicio" },
+    entrar: { seccion: "vistaEntrar", soloInvitado: true },
+    panel: { seccion: "vistaPanel", requiereSesion: true },
+    admin: { seccion: "vistaAdmin", requiereAdmin: true },
+  };
+
+  let perfil = null;
+  let vistaActual = null;
+
+  // ---------- Estado de sesión ----------
+
+  function pintarSesion() {
+    const hay = !!perfil;
+    const esAdmin = hay && perfil.rol === "admin";
+
+    document.querySelectorAll("[data-si-sesion]").forEach((el) => (el.hidden = !hay));
+    document.querySelectorAll("[data-si-invitado]").forEach((el) => (el.hidden = hay));
+    document.querySelectorAll("[data-si-admin]").forEach((el) => (el.hidden = !esAdmin));
+
+    $("usuarioNombre").textContent = hay ? perfil.nombre : "";
   }
 
-  // ---------- Tarjetas ----------
-  function tarjetaZona(z) {
-    const estado = estadoDeZona(z.libres, z.capacidad);
-    const pct = z.capacidad > 0 ? Math.round(((z.capacidad - z.libres) / z.capacidad) * 100) : 0;
-    return `
-      <article class="zona zona--${estado.sufijo}" id="card-${z.id}">
-        <div class="zona__top">
-          <h3 class="zona__nombre">${z.nombre}</h3>
-          <p class="zona__estado">${estado.texto}</p>
-        </div>
-        <p class="zona__ref">${z.referencia || ""}</p>
-        <p class="zona__numero"><span class="js-contador" data-zona="${z.id}">${z.libres}</span><small>libres de ${z.capacidad}</small></p>
-        <div class="zona__barra" role="img" aria-label="Ocupación ${pct}%">
-          <span style="width: ${pct}%"></span>
-        </div>
-        ${z.deshabilitados > 0 ? `<p class="zona__nota">${z.deshabilitados} espacios fuera de servicio</p>` : ""}
-      </article>`;
+  async function releerPerfil() {
+    perfil = MiParqueo.configurado ? await MiParqueo.perfil() : null;
+    pintarSesion();
   }
 
-  // ---------- Contadores animados ----------
-  const previos = new Map();
+  // ---------- Navegación ----------
 
-  function animarContador(el, desde, hasta) {
-    if (!el) return;
-    if (reduceMotion || desde === hasta) { el.textContent = hasta; return; }
-    const duracion = 500;
-    const inicio = performance.now();
-    function paso(t) {
-      const p = Math.min(1, (t - inicio) / duracion);
-      const suavizado = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(desde + (hasta - desde) * suavizado);
-      if (p < 1) requestAnimationFrame(paso);
+  function irA(nombre, { reemplazar = false } = {}) {
+    let destino = VISTAS[nombre] ? nombre : "inicio";
+    const v = VISTAS[destino];
+
+    // Reglas de acceso: nadie llega a donde no le toca, ni escribiendo
+    // la dirección a mano.
+    if (v.requiereAdmin && (!perfil || perfil.rol !== "admin")) destino = perfil ? "panel" : "entrar";
+    else if (v.requiereSesion && !perfil) destino = "entrar";
+    else if (v.soloInvitado && perfil) destino = "panel";
+
+    if (destino !== vistaActual) {
+      if (vistaActual === "panel") Panel.ocultar();
+
+      Object.entries(VISTAS).forEach(([nombre, cfg]) => {
+        $(cfg.seccion).hidden = nombre !== destino;
+      });
+
+      document.querySelectorAll(".nav__enlace").forEach((b) =>
+        b.classList.toggle("nav__enlace--activo", b.dataset.ir === destino)
+      );
+
+      vistaActual = destino;
+      window.scrollTo({ top: 0, behavior: "auto" });
+
+      if (destino === "panel") Panel.mostrar();
+      if (destino === "admin") Admin.mostrar();
     }
-    requestAnimationFrame(paso);
+
+    const hash = `#${destino}`;
+    if (location.hash !== hash) {
+      if (reemplazar) history.replaceState(null, "", hash);
+      else history.pushState(null, "", hash);
+    }
   }
 
-  // ---------- Mapa ----------
-  function actualizarMapa(z) {
-    const g = document.getElementById(`mapa-${z.id}`);
-    const num = document.getElementById(`mapa-${z.id}-num`);
-    if (!g || !num) return;
-    const estado = estadoDeZona(z.libres, z.capacidad);
-    g.classList.remove("puntoMapa--ok", "puntoMapa--medio", "puntoMapa--lleno");
-    g.classList.add(`puntoMapa--${estado.sufijo}`);
-    num.textContent = z.libres;
-    g.setAttribute("aria-label", `${z.nombre}: ${z.libres} espacios libres de ${z.capacidad} (${estado.texto})`);
+  function vistaDeLaDireccion() {
+    const nombre = location.hash.replace(/^#/, "");
+    return VISTAS[nombre] ? nombre : "inicio";
   }
 
-  function irATarjeta(id) {
-    const card = document.getElementById(`card-${id}`);
-    if (!card) return;
-    card.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
-    card.classList.remove("zona--destello");
-    void card.offsetWidth; // reinicia la animación
-    card.classList.add("zona--destello");
-  }
-
-  ["a1", "b1", "pg"].forEach((id) => {
-    const g = document.getElementById(`mapa-${id}`);
-    if (!g) return;
-    g.addEventListener("click", () => irATarjeta(id));
-    g.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); irATarjeta(id); }
-    });
+  // Cualquier elemento con data-ir cambia de sección.
+  document.addEventListener("click", (e) => {
+    const disparador = e.target.closest("[data-ir]");
+    if (!disparador) return;
+    e.preventDefault();
+    irA(disparador.dataset.ir);
   });
 
-  // ---------- Refresco ----------
-  function marcaDeTiempo() {
-    const ahora = new Date();
-    const hh = String(ahora.getHours()).padStart(2, "0");
-    const mm = String(ahora.getMinutes()).padStart(2, "0");
-    heroMeta.textContent = `Actualizado a las ${hh}:${mm}`;
+  window.addEventListener("popstate", () => irA(vistaDeLaDireccion(), { reemplazar: true }));
+
+  // ---------- Acceso ----------
+
+  const formEntrar = $("formEntrar");
+  const avisoAcceso = $("avisoAcceso");
+  let modoAcceso = "clave"; // "clave" | "enlace"
+
+  function avisarAcceso(texto, tipo) {
+    avisoAcceso.textContent = texto;
+    avisoAcceso.className = `aviso aviso--${tipo}`;
+    avisoAcceso.hidden = false;
   }
 
-  function sinConexion(mensaje) {
-    liveLabel.textContent = "Sin conexión";
-    liveLabel.closest(".live").classList.add("live--caida");
-    heroMeta.textContent = "Sin datos en este momento";
-    grid.innerHTML = `<p class="aviso aviso--error">${mensaje}</p>`;
+  function pintarModoAcceso() {
+    const conClave = modoAcceso === "clave";
+    $("campoClave").hidden = !conClave;
+    $("campoNombre").hidden = conClave;
+    $("clave").required = conClave;
+    $("btnEnviar").textContent = conClave ? "Entrar" : "Enviarme el enlace";
+    $("btnAlternar").textContent = conClave
+      ? "¿Primera vez? Entrar con un enlace por correo"
+      : "Ya tengo contraseña";
+    avisoAcceso.hidden = true;
   }
 
-  async function refrescar() {
-    let zonas;
-    try {
-      zonas = await MiParqueo.disponibilidad();
-    } catch (error) {
-      sinConexion("No se pudo consultar la disponibilidad. Reintenta en un momento.");
+  $("btnAlternar").addEventListener("click", () => {
+    modoAcceso = modoAcceso === "clave" ? "enlace" : "clave";
+    pintarModoAcceso();
+  });
+
+  formEntrar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const correo = $("correo").value.trim().toLowerCase();
+    if (!/^[^@\s]+@(ce\.)?pucmm\.edu\.do$/.test(correo)) {
+      avisarAcceso("Usa tu correo institucional (@pucmm.edu.do o @ce.pucmm.edu.do).", "error");
+      $("correo").focus();
       return;
     }
 
-    liveLabel.textContent = "En vivo";
-    grid.innerHTML = zonas.map(tarjetaZona).join("");
+    const boton = $("btnEnviar");
+    const original = boton.textContent;
+    boton.disabled = true;
+    boton.textContent = modoAcceso === "clave" ? "Entrando…" : "Enviando…";
 
-    zonas.forEach((z) => {
-      const el = grid.querySelector(`.js-contador[data-zona="${z.id}"]`);
-      const previo = previos.has(z.id) ? previos.get(z.id) : z.libres;
-      animarContador(el, previo, z.libres);
-      previos.set(z.id, z.libres);
-      actualizarMapa(z);
+    try {
+      if (modoAcceso === "clave") {
+        if (!$("clave").value) {
+          avisarAcceso("Escribe tu contraseña.", "error");
+          return;
+        }
+        await MiParqueo.entrarConClave(correo, $("clave").value);
+        formEntrar.reset();
+        avisoAcceso.hidden = true;
+        await releerPerfil();
+        irA("panel");
+        return;
+      }
+
+      await MiParqueo.enviarEnlace(correo, $("nombre").value, location.href.split("#")[0] + "#panel");
+      avisarAcceso(
+        `Listo. Te enviamos un enlace a ${correo}. Ábrelo desde este mismo dispositivo.`,
+        "ok"
+      );
+      formEntrar.reset();
+    } catch (error) {
+      avisarAcceso(error.message, "error");
+    } finally {
+      boton.disabled = false;
+      boton.textContent = original;
+    }
+  });
+
+  $("btnSalir").addEventListener("click", async () => {
+    await MiParqueo.cerrarSesion();
+    perfil = null;
+    Panel.reiniciar();
+    pintarSesion();
+    irA("inicio");
+  });
+
+  // ---------- Modales (comunes a todas las secciones) ----------
+
+  document.querySelectorAll(".modal").forEach((modal) => {
+    modal.addEventListener("click", (e) => {
+      if (e.target.hasAttribute("data-close")) modal.hidden = true;
     });
-    marcaDeTiempo();
-  }
-
-  // ---------- Sesión: adapta los botones ----------
-  async function ajustarAccesos() {
-    const sesion = await MiParqueo.sesion();
-    const entrar = document.querySelectorAll("[data-si-invitado]");
-    const panel = document.querySelectorAll("[data-si-sesion]");
-    entrar.forEach((el) => (el.hidden = !!sesion));
-    panel.forEach((el) => (el.hidden = !sesion));
-  }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    document.querySelectorAll(".modal").forEach((m) => (m.hidden = true));
+  });
 
   // ---------- Arranque ----------
-  if (!MiParqueo.configurado) {
-    // Sin credenciales no hay sesión posible: se deja la página como
-    // invitado y se explica el porqué en vez de mostrar datos falsos.
-    document.querySelectorAll("[data-si-sesion]").forEach((el) => (el.hidden = true));
-    sinConexion(
-      "La aplicación todavía no está conectada a Supabase. Completa frontend/js/config.js con la URL y la clave anon."
-    );
-    return;
-  }
 
-  refrescar();
-  ajustarAccesos();
-  MiParqueo.suscribir(refrescar);
+  (async function iniciar() {
+    pintarModoAcceso();
+    Disponibilidad.iniciar();
 
-  // Red de seguridad: si el tiempo real se cae o el navegador
-  // suspende la pestaña, la página no se queda con datos viejos.
-  setInterval(() => {
-    if (!document.hidden) refrescar();
-  }, 30000);
-  document.addEventListener("visibilitychange", () => {
-    if (!document.hidden) refrescar();
-  });
+    if (!MiParqueo.configurado) {
+      avisarAcceso(
+        "La aplicación todavía no está conectada a Supabase. Completa frontend/js/config.js.",
+        "error"
+      );
+      $("btnEnviar").disabled = true;
+    } else {
+      // Se espera a saber si hay sesión antes de decidir la vista:
+      // asi el enlace magico del correo no cae en la pantalla de acceso.
+      await releerPerfil();
+    }
+
+    $("cargando").hidden = true;
+    irA(vistaDeLaDireccion(), { reemplazar: true });
+  })();
 })();
