@@ -16,6 +16,7 @@ const Parqueo = (() => {
   let asignacion = null;
   let vehiculos = [];
   let strikes = 0;
+  let ultimasZonas = [];
   let reloj = null;
   let avisadoPocoTiempo = false;
   let avisadoVencimiento = false;
@@ -59,13 +60,25 @@ const Parqueo = (() => {
 
   // ---------- Zonas ----------
 
+  // Por qué no se puede reservar aquí, o null si sí se puede.
+  function motivoBloqueo(z) {
+    if (strikes >= LIMITE_STRIKES)
+      return "Tu acceso al parqueo está suspendido por tres reportes validados.";
+    if (asignacion)
+      return `Ya tienes el espacio ${asignacion.espacios.codigo} asignado. Marca tu salida antes de reservar otro.`;
+    if (!vehiculos.length)
+      return "Registra un vehículo en Mi perfil antes de reservar.";
+    if (z.libres === 0)
+      return "Esta zona está llena en este momento.";
+    return null;
+  }
+
   function tarjetaZona(z) {
     const estado = estadoDeZona(z.libres, z.capacidad);
     const pct = z.capacidad > 0 ? Math.round(((z.capacidad - z.libres) / z.capacidad) * 100) : 0;
 
-    // El botón se apaga si la zona está llena, si ya tienes parqueo,
-    // si estás suspendido o si aún no registras un vehículo.
-    const bloqueado = z.libres === 0 || !!asignacion || strikes >= LIMITE_STRIKES || !vehiculos.length;
+    // El botón no desaparece cuando no se puede: dice por qué.
+    const bloqueado = !!motivoBloqueo(z);
     const etiqueta =
       z.libres === 0 ? "Sin espacios"
       : asignacion ? "Ya tienes parqueo"
@@ -103,25 +116,65 @@ const Parqueo = (() => {
     requestAnimationFrame(paso);
   }
 
-  function actualizarMapa(z) {
-    const g = $(`mapa-${z.id}`);
-    const num = $(`mapa-${z.id}-num`);
-    if (!g || !num) return;
-    const estado = estadoDeZona(z.libres, z.capacidad);
-    g.classList.remove("puntoMapa--ok", "puntoMapa--medio", "puntoMapa--lleno");
-    g.classList.add(`puntoMapa--${estado.sufijo}`);
-    num.textContent = z.libres;
-    g.setAttribute("aria-label",
-      `${z.nombre}: ${z.libres} espacios libres de ${z.capacidad} (${estado.texto})`);
+  // ---------- Mapa ----------
+  // Cada zona es un polígono dibujado sobre la foto del campus, con su
+  // contador flotando encima. Los contornos vienen de zonas-mapa.js.
+
+  const SVG = "http://www.w3.org/2000/svg";
+  const crear = (tag, attrs) => {
+    const el = document.createElementNS(SVG, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  };
+
+  function contorno(id) {
+    const pts = (typeof ZONAS_MAPA !== "undefined" && ZONAS_MAPA[id]) || [];
+    return pts.length > 2 ? pts : null;
   }
 
-  function irATarjeta(id) {
-    const card = $(`card-${id}`);
-    if (!card) return;
-    card.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" });
-    card.classList.remove("zona--destello");
-    void card.offsetWidth;
-    card.classList.add("zona--destello");
+  function pintarMapa(zonas) {
+    const capa = $("capaZonas");
+    if (!capa) return;
+    capa.innerHTML = "";
+
+    let alguna = false;
+
+    zonas.forEach((z) => {
+      const pts = contorno(z.id);
+      if (!pts) return;
+      alguna = true;
+
+      const estado = estadoDeZona(z.libres, z.capacidad);
+      const g = crear("g", {
+        class: `zonaMapa zonaMapa--${estado.sufijo}`,
+        tabindex: "0", role: "button",
+        "aria-label": `${z.nombre}: ${z.libres} espacios libres de ${z.capacidad} (${estado.texto})`,
+      });
+      g.dataset.zona = z.id;
+
+      g.appendChild(crear("polygon", {
+        class: "zonaMapa__area",
+        points: pts.map((p) => p.join(",")).join(" "),
+      }));
+
+      // El contador va arriba del área, sin salirse del mapa.
+      const xs = pts.map((p) => p[0]);
+      const ys = pts.map((p) => p[1]);
+      const cx = Math.min(946, Math.max(54, (Math.min(...xs) + Math.max(...xs)) / 2));
+      const cy = Math.max(30, Math.min(...ys) - 22);
+
+      const pill = crear("g", { class: "zonaMapa__pill", transform: `translate(${cx},${cy})` });
+      pill.appendChild(crear("rect", { x: -52, y: -17, width: 104, height: 34, rx: 17 }));
+      pill.appendChild(Object.assign(crear("text", { class: "zonaMapa__num", x: -20, y: 6 }),
+        { textContent: z.libres }));
+      pill.appendChild(Object.assign(crear("text", { class: "zonaMapa__lbl", x: 18, y: 5 }),
+        { textContent: "libres" }));
+      g.appendChild(pill);
+
+      capa.appendChild(g);
+    });
+
+    $("mapaAyuda").hidden = !alguna;
   }
 
   async function pintarZonas() {
@@ -143,8 +196,9 @@ const Parqueo = (() => {
       const el = $("zonasGrid").querySelector(`.js-contador[data-zona="${z.id}"]`);
       animarContador(el, previos.has(z.id) ? previos.get(z.id) : z.libres, z.libres);
       previos.set(z.id, z.libres);
-      actualizarMapa(z);
     });
+    ultimasZonas = zonas;
+    pintarMapa(zonas);
 
     const ahora = new Date();
     $("heroMeta").textContent =
@@ -277,14 +331,60 @@ const Parqueo = (() => {
     }
   }
 
+  async function reservar(zonaId, vehiculoId, boton) {
+    await conBoton(boton, "Asignando…", async () => {
+      await MiParqueo.solicitar(zonaId, vehiculoId);
+      $("modalReservar").hidden = true;
+      $("avisoParqueo").hidden = true;
+      await recargar();
+      avisar(`Te asignamos el espacio ${asignacion.espacios.codigo}. Tienes 6 horas.`, "ok");
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+    });
+  }
+
+  // ---------- Reserva desde el mapa ----------
+
+  let zonaEnModal = null;
+
+  function abrirReserva(zonaId) {
+    const z = ultimasZonas.find((x) => x.id === zonaId);
+    if (!z) return;
+    zonaEnModal = zonaId;
+
+    const motivo = motivoBloqueo(z);
+    $("reservaZona").textContent = z.referencia || "Campus PUCMM";
+    $("tituloReservar").textContent = z.nombre;
+    $("reservaDetalle").textContent =
+      `${z.libres} de ${z.capacidad} espacios libres ahora mismo.`;
+
+    $("reservaVehiculo").innerHTML = vehiculos
+      .map((v) => `<option value="${v.id}">${v.placa} · ${v.marca} ${v.modelo}</option>`)
+      .join("");
+    $("reservaSelector").hidden = !!motivo || vehiculos.length < 2;
+
+    $("reservaBloqueo").hidden = !motivo;
+    $("reservaBloqueo").textContent = motivo || "";
+    $("btnConfirmarReserva").hidden = !!motivo;
+
+    $("modalReservar").hidden = false;
+  }
+
   function conectar() {
-    ["a1", "b1", "pg"].forEach((id) => {
-      const g = $(`mapa-${id}`);
-      if (!g) return;
-      g.addEventListener("click", () => irATarjeta(id));
-      g.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); irATarjeta(id); }
-      });
+    $("capaZonas").addEventListener("click", (e) => {
+      const g = e.target.closest("[data-zona]");
+      if (g) abrirReserva(g.dataset.zona);
+    });
+    $("capaZonas").addEventListener("keydown", (e) => {
+      const g = e.target.closest("[data-zona]");
+      if (g && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); abrirReserva(g.dataset.zona); }
+    });
+
+    $("btnConfirmarReserva").addEventListener("click", (e) => {
+      const vehiculo = vehiculos.length > 1 ? $("reservaVehiculo").value : (vehiculos[0] || {}).id;
+      if (!vehiculo) return;
+      reservar(zonaEnModal, vehiculo, e.target);
     });
 
     $("zonasGrid").addEventListener("click", (e) => {
@@ -295,15 +395,7 @@ const Parqueo = (() => {
         avisar("Registra un vehículo en Mi perfil antes de solicitar parqueo.", "error");
         return;
       }
-      conBoton(boton, "Asignando…", async () => {
-        await MiParqueo.solicitar(boton.dataset.solicitar, vehiculo);
-        $("avisoParqueo").hidden = true;
-        await recargar();
-        avisar(`Te asignamos el espacio ${asignacion.espacios.codigo}. Tienes 6 horas.`, "ok");
-        if ("Notification" in window && Notification.permission === "default") {
-          Notification.requestPermission();
-        }
-      });
+      reservar(boton.dataset.solicitar, vehiculo, boton);
     });
 
     $("btnSalida").addEventListener("click", (e) =>

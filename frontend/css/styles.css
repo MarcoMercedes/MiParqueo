@@ -207,42 +207,34 @@ img { max-width: 100%; display: block; }
 .mapaReal img { width: 100%; height: auto; display: block; }
 .mapaReal__overlay { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-.puntoMapa { cursor: pointer; }
-.puntoMapa:focus-visible { outline: none; }
-.puntoMapa__area {
-  fill: rgba(255, 255, 255, 0.001); /* área táctil invisible */
-  stroke: transparent; stroke-width: 4;
-  transition: stroke 200ms ease, fill 200ms ease;
+/* ---------- Zonas dibujadas sobre el mapa ---------- */
+.zonaMapa { cursor: pointer; }
+.zonaMapa:focus { outline: none; }
+.zonaMapa__area {
+  fill: currentColor; fill-opacity: 0.30;
+  stroke: currentColor; stroke-width: 4; stroke-linejoin: round;
+  transition: fill-opacity 180ms ease;
 }
-.puntoMapa:hover .puntoMapa__area,
-.puntoMapa:focus-visible .puntoMapa__area {
-  fill: rgba(232, 163, 61, 0.14);
-  stroke: var(--dorado);
-}
-.puntoMapa__pill rect {
-  fill: var(--gris);
-  stroke: #ffffff; stroke-width: 2.5;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.35));
-  transition: fill 400ms ease;
-}
-.puntoMapa__zona {
-  font-family: var(--display); font-weight: 700; font-size: 17px;
-  fill: #ffffff; text-anchor: middle;
-}
-.puntoMapa__num {
-  font-family: var(--display); font-weight: 700; font-size: 17px;
-  fill: #ffffff; text-anchor: middle;
-}
-.puntoMapa__lbl {
-  font-family: var(--texto); font-size: 9px;
-  fill: rgba(255, 255, 255, 0.85); text-anchor: middle;
-  text-transform: uppercase; letter-spacing: 0.08em;
-}
-.puntoMapa__nexo { stroke: #ffffff; stroke-width: 2.5; }
+.zonaMapa:hover .zonaMapa__area,
+.zonaMapa:focus-visible .zonaMapa__area { fill-opacity: 0.52; stroke-width: 6; }
 
-.puntoMapa--ok .puntoMapa__pill rect { fill: var(--ok); }
-.puntoMapa--medio .puntoMapa__pill rect { fill: var(--medio); }
-.puntoMapa--lleno .puntoMapa__pill rect { fill: var(--lleno); }
+.zonaMapa--ok    { color: var(--ok); }
+.zonaMapa--medio { color: var(--medio); }
+.zonaMapa--lleno { color: var(--lleno); }
+
+.zonaMapa__pill rect {
+  fill: currentColor; stroke: #ffffff; stroke-width: 2.5;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.45));
+}
+.zonaMapa__num {
+  font-family: var(--display); font-weight: 700; font-size: 20px;
+  fill: #ffffff; text-anchor: middle;
+}
+.zonaMapa__lbl {
+  font-family: var(--texto); font-size: 10px; font-weight: 600;
+  fill: rgba(255, 255, 255, 0.9); text-anchor: middle;
+  text-transform: uppercase; letter-spacing: 0.07em;
+}
 
 .mapa__leyendaEstados {
   display: flex; justify-content: center; gap: 1.1rem; flex-wrap: wrap;
@@ -421,7 +413,6 @@ img { max-width: 100%; display: block; }
   .usuario__nombre { display: none; }
   .nav__enlace { padding: 0.45rem 0.7rem; font-size: 0.85rem; }
 }
-
 
 /* ============================================================
    Pantallas con sesión: acceso, panel del usuario y admin

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delimitar zonas · MiParqueo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <style>
+    /* Herramienta interna: no forma parte de la aplicación que ve el
+       estudiante, así que sus estilos viven aquí y no ensucian la hoja
+       principal. */
+    .taller { max-width: 1240px; margin: 0 auto; padding: 1.5rem 1.25rem 4rem; }
+    .taller__grid { display: grid; grid-template-columns: minmax(320px, 1fr) 340px; gap: 1.25rem; align-items: start; }
+    .lienzo { position: relative; border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra); background: #222; }
+    .lienzo img { width: 100%; display: block; }
+    .lienzo svg { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
+    .vertice { fill: #fff; stroke: #0b3d6e; stroke-width: 3; cursor: grab; }
+    .vertice:hover { fill: var(--dorado); }
+    .zonaLista { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+    .zonaBoton {
+      display: flex; align-items: center; gap: 0.6rem; width: 100%;
+      font-family: var(--texto); font-size: 0.95rem; font-weight: 600;
+      background: var(--blanco); border: 2px solid var(--linea); border-radius: 12px;
+      padding: 0.7rem 0.9rem; cursor: pointer; text-align: left; color: var(--tinta);
+    }
+    .zonaBoton--activa { border-color: var(--azul); background: var(--azul-claro); }
+    .zonaBoton__color { width: 16px; height: 16px; border-radius: 4px; flex: none; }
+    .zonaBoton__conteo { margin-left: auto; font-size: 0.8rem; color: var(--gris); font-weight: 500; }
+    .salida {
+      width: 100%; min-height: 260px; font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.76rem; line-height: 1.45; border: 1px solid var(--linea);
+      border-radius: 12px; padding: 0.75rem; resize: vertical; background: #0f1b28; color: #cfe3f7;
+    }
+    .ayuda { font-size: 0.85rem; color: var(--gris); }
+    .ayuda kbd { background: var(--azul-claro); border-radius: 4px; padding: 0.1rem 0.35rem; font-family: inherit; }
+    @media (max-width: 900px) { .taller__grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark" aria-hidden="true">P</span>
+        <span class="brand__text">MiParqueo <span class="brand__campus">· Delimitar zonas</span></span>
+      </a>
+      <a class="btn btn--ghost" href="index.html">Volver a la app</a>
+    </div>
+  </header>
+
+  <main class="taller">
+    <h1 class="bloque__titulo">Dibujar las zonas sobre el mapa</h1>
+    <p class="ayuda">
+      Elige una zona, haz clic en cada esquina del parqueo y cierra el contorno.
+      Las coordenadas se guardan en el navegador mientras trabajas, así que puedes
+      recargar sin perderlas.
+    </p>
+
+    <div class="taller__grid">
+      <div class="lienzo">
+        <img id="mapa" src="assets/mapa_pucmm.jpg" alt="Mapa del campus" />
+        <svg id="capa" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+      </div>
+
+      <aside>
+        <ul class="zonaLista" id="zonaLista"></ul>
+
+        <div class="acciones__fila" style="justify-content:flex-start">
+          <button class="btn btn--outline btn--mini" id="btnDeshacer">Deshacer punto</button>
+          <button class="btn btn--outline btn--mini" id="btnLimpiar">Limpiar zona</button>
+        </div>
+
+        <p class="ayuda" style="margin:0.9rem 0 0.4rem">
+          <kbd>Clic</kbd> añade un punto · <kbd>Clic</kbd> sobre un punto lo arrastra ·
+          <kbd>Ctrl+Z</kbd> deshace
+        </p>
+
+        <h2 class="bloque__titulo" style="font-size:1rem;margin-top:1.25rem">Resultado</h2>
+        <textarea class="salida" id="salida" readonly></textarea>
+        <div class="acciones__fila" style="justify-content:flex-start;margin-top:0.6rem">
+          <button class="btn btn--primary btn--mini" id="btnCopiar">Copiar</button>
+          <button class="btn btn--outline btn--mini" id="btnDescargar">Descargar .js</button>
+        </div>
+        <p class="ayuda" id="avisoCopia" style="margin-top:0.5rem"></p>
+      </aside>
+    </div>
+  </main>
+
+  <script src="js/delimitar.js"></script>
+</body>
+</html>
