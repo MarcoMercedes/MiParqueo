@@ -34,6 +34,10 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
+/* El atributo hidden tiene que ganarle a cualquier display de clase
+   (.btn es inline-block y si no, los elementos ocultos se verían). */
+[hidden] { display: none !important; }
+
 body {
   margin: 0;
   font-family: var(--texto);
@@ -393,7 +397,269 @@ img { max-width: 100%; display: block; }
   .panel { grid-template-columns: 1fr; }
 }
 @media (max-width: 520px) {
-  .topbar .btn--ghost { display: none; }
   .hero { min-height: 66vh; }
   .zonas { margin-top: -2.5rem; }
+  .topbar__inner { padding: 0.5rem 0.9rem; }
+  .usuario__nombre { display: none; }
+}
+
+
+/* ============================================================
+   Pantallas con sesión: acceso, panel del usuario y admin
+   ============================================================ */
+
+/* ---------- Barra superior con usuario ---------- */
+.topbar__usuario { display: flex; align-items: center; gap: 0.4rem; }
+.usuario__nombre { font-size: 0.9rem; font-weight: 600; color: var(--gris); }
+
+/* ---------- Página de acceso ---------- */
+.pagina--centrada { display: grid; place-items: center; min-height: 100vh; padding: 1.5rem; }
+.acceso { width: 100%; max-width: 420px; }
+.brand--centrada { justify-content: center; margin-bottom: 1.25rem; }
+
+.tarjeta {
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 2rem 1.75rem 1.5rem;
+}
+.tarjeta__titulo { font-family: var(--display); font-size: 1.6rem; margin: 0 0 0.4rem; }
+.tarjeta__sub { color: var(--gris); margin: 0 0 1.5rem; font-size: 0.95rem; }
+.tarjeta__pie { margin: 1.25rem 0 0; text-align: center; font-size: 0.9rem; }
+.tarjeta__pie a { color: var(--azul); }
+.tarjeta__alterna { margin: 1rem 0 0; text-align: center; }
+
+.enlace {
+  font-family: var(--texto); font-size: 0.9rem; font-weight: 600;
+  background: none; border: none; padding: 0.25rem;
+  color: var(--azul); cursor: pointer; text-decoration: underline;
+}
+.enlace:focus-visible { outline: 3px solid var(--dorado); border-radius: 6px; }
+
+/* ---------- Formularios ---------- */
+.formulario { display: flex; flex-direction: column; gap: 1rem; }
+.formulario--grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: end;
+}
+.campo { display: flex; flex-direction: column; gap: 0.35rem; }
+.campo--inline { flex-direction: row; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.campo--inline .campo__input { width: auto; flex: 1; max-width: 320px; }
+.campo__etiqueta { font-size: 0.85rem; font-weight: 600; color: var(--tinta); }
+.campo__input {
+  font-family: var(--texto); font-size: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  background: var(--blanco);
+  color: var(--tinta);
+  width: 100%;
+}
+.campo__input:focus-visible { outline: 3px solid var(--dorado); outline-offset: 1px; border-color: var(--azul); }
+.campo__input--archivo { padding: 0.55rem; font-size: 0.9rem; }
+.campo__ayuda { font-size: 0.8rem; color: var(--gris); }
+textarea.campo__input { resize: vertical; }
+
+/* ---------- Botones extra ---------- */
+.btn--bloque { display: block; width: 100%; }
+.btn--mini { font-size: 0.85rem; padding: 0.45rem 1rem; }
+.btn--peligro { background: var(--lleno); color: var(--blanco); }
+.btn--peligro:hover { background: #a51f1f; }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ---------- Avisos ---------- */
+.aviso {
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  font-size: 0.92rem;
+  margin: 0 0 1rem;
+  border: 1px solid transparent;
+}
+.aviso--ok { background: var(--ok-tinte); color: #14663a; border-color: #bfe3cf; }
+.aviso--error { background: var(--lleno-tinte); color: #8c1c1c; border-color: #f0c4c4; }
+.aviso--medio { background: var(--medio-tinte); color: #8a3f07; border-color: #f2d6b3; }
+.aviso a { color: inherit; font-weight: 600; }
+
+.cargando { text-align: center; color: var(--gris); padding: 4rem 1.5rem; }
+
+/* ---------- Panel ---------- */
+.panelUsuario { max-width: 820px; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+
+.bloque {
+  background: var(--blanco);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 1.5rem 1.5rem 1.35rem;
+  margin-bottom: 1.25rem;
+}
+.bloque__titulo { font-family: var(--display); font-size: 1.25rem; margin: 0 0 0.5rem; }
+.bloque__eyebrow {
+  text-transform: uppercase; letter-spacing: 0.12em;
+  font-size: 0.72rem; font-weight: 700; color: var(--gris);
+  margin: 0 0 0.25rem;
+}
+.nota { color: var(--gris); font-size: 0.88rem; margin: 0.5rem 0 1rem; }
+
+.bloque--activo { border-color: var(--azul); border-width: 2px; text-align: center; }
+.bloque--sancion { background: var(--lleno-tinte); border-color: #f0c4c4; }
+.bloque--sancion h2 { font-family: var(--display); color: var(--lleno); margin: 0 0 0.5rem; font-size: 1.25rem; }
+.bloque--alerta { background: var(--medio-tinte); border-color: #f2d6b3; }
+.bloque--alerta h2 { font-family: var(--display); color: var(--medio); margin: 0 0 0.5rem; font-size: 1.25rem; }
+
+/* ---------- Espacio asignado ---------- */
+.espacio__codigo {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(2.8rem, 12vw, 4rem);
+  line-height: 1; margin: 0.25rem 0 0.25rem;
+  color: var(--azul);
+  letter-spacing: -0.02em;
+}
+.espacio__zona { color: var(--gris); margin: 0 0 1.25rem; font-size: 0.95rem; }
+.espacio__vehiculo { color: var(--gris); font-size: 0.88rem; margin: 0.9rem 0 1.25rem; }
+
+.contador { display: flex; align-items: baseline; justify-content: center; gap: 0.5rem; }
+.contador__tiempo {
+  font-family: var(--display); font-weight: 700;
+  font-size: 2.4rem; font-variant-numeric: tabular-nums;
+  color: var(--ok);
+}
+.contador__etiqueta { color: var(--gris); font-size: 0.9rem; }
+.contador--urgente .contador__tiempo { color: var(--lleno); }
+
+.contador__barra {
+  height: 8px; border-radius: 999px;
+  background: var(--azul-claro);
+  overflow: hidden;
+  margin: 0.6rem auto 0;
+  max-width: 320px;
+}
+.contador__barra span {
+  display: block; height: 100%; border-radius: 999px;
+  background: var(--ok);
+  transition: width 1s linear;
+}
+
+.acciones__fila {
+  display: flex; flex-wrap: wrap; gap: 0.6rem;
+  justify-content: center; margin-top: 0.5rem;
+}
+
+/* ---------- Zonas para solicitar ---------- */
+.zonasSolicitar { display: flex; flex-direction: column; gap: 0.85rem; }
+.zonaSolicitar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid var(--linea);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+}
+.zonaSolicitar__info h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.zonaSolicitar__info .zona__estado { margin: 0.15rem 0 0; }
+.zonaSolicitar__numero {
+  font-family: var(--display); font-weight: 700;
+  font-size: 2rem; line-height: 1; margin: 0;
+  font-variant-numeric: tabular-nums; text-align: right;
+}
+.zonaSolicitar__numero small {
+  display: block;
+  font-family: var(--texto); font-weight: 500;
+  font-size: 0.75rem; color: var(--gris);
+}
+.zona__nota { color: var(--gris); font-size: 0.8rem; margin: 0.4rem 0 0; }
+
+/* ---------- Listas ---------- */
+.lista { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.lista__item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--linea);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+.lista__item--columna { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+.lista__item--columna p { margin: 0; }
+.lista__cabecera { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.lista__meta { color: var(--gris); font-size: 0.83rem; display: block; }
+.lista__vacio { color: var(--gris); font-size: 0.9rem; padding: 0.5rem 0; }
+.lista--compacta .lista__item { padding: 0.6rem 0.9rem; }
+.lista__evidencia { color: var(--azul); font-size: 0.85rem; font-weight: 600; }
+
+.etiqueta {
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 0.25rem 0.6rem; border-radius: 999px;
+  white-space: nowrap;
+}
+.etiqueta--pendiente { background: var(--medio-tinte); color: var(--medio); }
+.etiqueta--validado, .etiqueta--lleno { background: var(--lleno-tinte); color: var(--lleno); }
+.etiqueta--rechazado, .etiqueta--ok { background: var(--ok-tinte); color: var(--ok); }
+.etiqueta--medio { background: var(--medio-tinte); color: var(--medio); }
+
+/* ---------- Reportes (vista admin) ---------- */
+.reporte__caras {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  background: var(--fondo);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+}
+.reporte__caras p { margin: 0.1rem 0 0; font-size: 0.92rem; }
+.reporte__foto { display: block; border-radius: 10px; overflow: hidden; max-width: 320px; }
+.reporte__foto img { width: 100%; height: auto; }
+
+.cita {
+  margin: 0; padding: 0.75rem 1rem;
+  border-left: 3px solid var(--azul);
+  background: var(--azul-claro);
+  border-radius: 0 10px 10px 0;
+  font-size: 0.95rem;
+}
+.detalle summary { cursor: pointer; font-size: 0.88rem; color: var(--azul); font-weight: 600; }
+.detalle > *:not(summary) { margin-top: 0.6rem; }
+
+/* ---------- Pestañas y filtros ---------- */
+.pestanas { display: flex; gap: 0.4rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.pestana {
+  font-family: var(--texto); font-size: 0.95rem; font-weight: 600;
+  background: transparent; color: var(--gris);
+  border: 1px solid var(--linea); border-radius: 999px;
+  padding: 0.5rem 1.15rem; cursor: pointer;
+}
+.pestana--activa { background: var(--azul); color: var(--blanco); border-color: var(--azul); }
+
+.filtros { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+.filtro--activo { background: var(--azul); color: var(--blanco); border-color: var(--azul); }
+
+/* ---------- Rejilla de espacios ---------- */
+.rejillaEspacios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.chip {
+  font-family: var(--texto); font-size: 0.8rem; font-weight: 600;
+  border-radius: 8px; border: 1px solid var(--linea);
+  padding: 0.5rem 0.2rem; cursor: pointer;
+  text-align: center;
+}
+.chip--libre { background: var(--ok-tinte); color: #14663a; border-color: #bfe3cf; }
+.chip--bloqueado { background: var(--lleno-tinte); color: var(--lleno); border-color: #f0c4c4; }
+.nota .chip { display: inline-block; width: 22px; padding: 0.25rem 0; cursor: default; }
+
+/* ---------- Modal ancho ---------- */
+.modal__card--ancha { max-width: 520px; }
+
+/* ---------- Estado de conexión caída ---------- */
+.live--caida .live__dot { background: var(--lleno); animation: none; }
+
+@media (max-width: 560px) {
+  .zonaSolicitar { grid-template-columns: 1fr auto; }
+  .zonaSolicitar .btn { grid-column: 1 / -1; }
+  .acciones__fila .btn { flex: 1 1 100%; }
 }

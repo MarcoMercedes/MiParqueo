@@ -1,0 +1,12 @@
+{
+  "name": "miparqueo-pruebas",
+  "private": true,
+  "type": "module",
+  "description": "Pruebas de la logica de negocio de MiParqueo sobre un PostgreSQL local",
+  "scripts": {
+    "test": "node pruebas.mjs"
+  },
+  "dependencies": {
+    "embedded-postgres": "^17.4.0-beta.15"
+  }
+}

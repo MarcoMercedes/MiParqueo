@@ -1,13 +1,13 @@
 /* ============================================================
    MiParqueo · configuración
-   Para conectar Supabase, pega aquí la URL del proyecto y la
-   clave pública (anon). Ambas se obtienen en:
-   Supabase → Project Settings → API
-   Si se dejan vacías, la aplicación corre en modo demostración
-   con datos simulados.
+
+   URL del proyecto y clave pública (Supabase → Project Settings
+   → API Keys). La clave publishable viaja al navegador por
+   diseño; lo que protege los datos son las políticas RLS del
+   script de migración. La clave secreta no va aquí nunca.
    ============================================================ */
 
 window.MIPARQUEO_CONFIG = {
-  SUPABASE_URL: "",       // ej.: "https://abcd1234.supabase.co"
-  SUPABASE_ANON_KEY: "",  // clave pública "anon" (segura para el navegador)
+  SUPABASE_URL: "https://fsennpqdgartobrxdgig.supabase.co",
+  SUPABASE_ANON_KEY: "sb_publishable_ynoz8GAWalgw2VGcYuo_5g_z3kDqbr7",
 };

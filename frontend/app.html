@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi parqueo · MiParqueo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="index.html">
+        <span class="brand__mark" aria-hidden="true">P</span>
+        <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
+      </a>
+      <div class="topbar__usuario">
+        <a class="btn btn--ghost" href="admin.html" id="enlaceAdmin" hidden>Administración</a>
+        <span class="usuario__nombre" id="usuarioNombre">…</span>
+        <button class="btn btn--ghost" id="btnSalir">Cerrar sesión</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="panelUsuario" id="contenido" hidden>
+
+    <!-- Aviso general (errores, confirmaciones) -->
+    <p class="aviso" id="avisoGlobal" hidden></p>
+
+    <!-- ====== SUSPENSIÓN ====== -->
+    <section class="bloque bloque--sancion" id="bloqueSancion" hidden>
+      <h2>Acceso al parqueo suspendido</h2>
+      <p>
+        Tienes <strong id="strikesTotal">3</strong> reportes validados en tu contra.
+        No puedes solicitar parqueo y se te aplicará la multa correspondiente.
+        Si crees que hay un error, apela los reportes más abajo.
+      </p>
+    </section>
+
+    <!-- ====== MI PARQUEO ACTIVO ====== -->
+    <section class="bloque bloque--activo" id="bloqueActivo" hidden>
+      <p class="bloque__eyebrow">Tu parqueo</p>
+      <p class="espacio__codigo" id="espacioCodigo">—</p>
+      <p class="espacio__zona" id="espacioZona">—</p>
+
+      <div class="contador" id="contador">
+        <span class="contador__tiempo" id="contadorTiempo">—</span>
+        <span class="contador__etiqueta">restantes</span>
+      </div>
+      <div class="contador__barra"><span id="contadorBarra"></span></div>
+
+      <p class="espacio__vehiculo" id="espacioVehiculo">—</p>
+
+      <div class="acciones__fila">
+        <button class="btn btn--primary" id="btnSalida">Marcar mi salida</button>
+        <button class="btn btn--outline" id="btnExtender">Extender 6 horas más</button>
+        <button class="btn btn--peligro" id="btnReportar">Hay alguien en mi espacio</button>
+      </div>
+      <p class="nota" id="notaExtensiones"></p>
+    </section>
+
+    <!-- ====== AVISO DE VENCIMIENTO ====== -->
+    <section class="bloque bloque--alerta" id="bloqueVencido" hidden>
+      <h2>Tu tiempo se venció</h2>
+      <p>
+        Tu espacio quedó libre y puede asignarse a otra persona.
+        <strong>Si sigues parqueado ahí, esa persona puede reportarte y recibirías un strike.</strong>
+        Si aún estás en el campus, solicita un espacio de nuevo.
+      </p>
+      <button class="btn btn--ghost" id="btnEntendidoVencido">Entendido</button>
+    </section>
+
+    <!-- ====== SIN PARQUEO: SOLICITAR ====== -->
+    <section class="bloque" id="bloqueSolicitar" hidden>
+      <h2 class="bloque__titulo">Solicitar parqueo</h2>
+
+      <div class="campo campo--inline" id="selectorVehiculo">
+        <label class="campo__etiqueta" for="vehiculoActivo">¿Con cuál vehículo?</label>
+        <select class="campo__input" id="vehiculoActivo"></select>
+      </div>
+
+      <div class="zonasSolicitar" id="zonasSolicitar"></div>
+    </section>
+
+    <!-- ====== VEHÍCULOS ====== -->
+    <section class="bloque" id="bloqueVehiculos">
+      <h2 class="bloque__titulo">Mis vehículos</h2>
+      <p class="nota" id="notaVehiculos">
+        Necesitas al menos un vehículo registrado para solicitar parqueo.
+        La placa es lo que permite identificar a quien ocupe tu espacio.
+      </p>
+
+      <ul class="lista" id="listaVehiculos"></ul>
+
+      <form class="formulario formulario--grid" id="formVehiculo">
+        <label class="campo">
+          <span class="campo__etiqueta">Placa</span>
+          <input class="campo__input" id="vPlaca" placeholder="A123456" required />
+        </label>
+        <label class="campo">
+          <span class="campo__etiqueta">Marca</span>
+          <input class="campo__input" id="vMarca" placeholder="Toyota" required />
+        </label>
+        <label class="campo">
+          <span class="campo__etiqueta">Modelo</span>
+          <input class="campo__input" id="vModelo" placeholder="Corolla" required />
+        </label>
+        <label class="campo">
+          <span class="campo__etiqueta">Color</span>
+          <input class="campo__input" id="vColor" placeholder="Gris" required />
+        </label>
+        <button class="btn btn--primary" type="submit">Registrar vehículo</button>
+      </form>
+    </section>
+
+    <!-- ====== REPORTES EN MI CONTRA ====== -->
+    <section class="bloque" id="bloqueMisReportes" hidden>
+      <h2 class="bloque__titulo">Reportes en mi contra</h2>
+      <p class="nota">
+        Un reporte solo cuenta como strike si un administrador lo valida
+        revisando la evidencia. Puedes apelar cualquiera de ellos.
+      </p>
+      <ul class="lista" id="listaMisReportes"></ul>
+    </section>
+
+    <!-- ====== HISTORIAL ====== -->
+    <section class="bloque" id="bloqueHistorial" hidden>
+      <h2 class="bloque__titulo">Mi historial</h2>
+      <ul class="lista lista--compacta" id="listaHistorial"></ul>
+    </section>
+
+  </main>
+
+  <p class="cargando" id="cargando">Cargando…</p>
+
+  <!-- ====== MODAL: REPORTAR OCUPACIÓN ====== -->
+  <div class="modal" id="modalReporte" role="dialog" aria-modal="true" aria-labelledby="tituloReporte" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card modal__card--ancha">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloReporte">Hay alguien en mi espacio</h3>
+      <p>
+        Se creará un reporte y te asignaremos otro espacio libre en la misma zona.
+        Mientras más completa la evidencia, más fácil le será al administrador validarlo.
+      </p>
+
+      <form class="formulario" id="formReporte">
+        <label class="campo">
+          <span class="campo__etiqueta">Placa del vehículo que está en tu espacio</span>
+          <input class="campo__input" id="rPlaca" placeholder="A123456" required />
+        </label>
+        <label class="campo">
+          <span class="campo__etiqueta">¿Qué pasó?</span>
+          <textarea class="campo__input" id="rDescripcion" rows="3"
+                    placeholder="Ej.: llegué a las 9:10 y el A1-037 ya estaba ocupado por este vehículo." required></textarea>
+        </label>
+        <label class="campo">
+          <span class="campo__etiqueta">Foto de evidencia</span>
+          <input class="campo__input campo__input--archivo" id="rFoto" type="file" accept="image/*" capture="environment" />
+          <span class="campo__ayuda">Que se vea la placa y el número del espacio si es posible.</span>
+        </label>
+        <p class="nota" id="rMeta"></p>
+        <button class="btn btn--peligro btn--bloque" type="submit" id="btnEnviarReporte">
+          Reportar y asignarme otro espacio
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ====== MODAL: APELAR ====== -->
+  <div class="modal" id="modalApelacion" role="dialog" aria-modal="true" aria-labelledby="tituloApelacion" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__card">
+      <button class="modal__close" data-close aria-label="Cerrar">×</button>
+      <h3 id="tituloApelacion">Apelar este reporte</h3>
+      <p>Explica por qué el reporte no procede. Un administrador lo revisará.</p>
+      <form class="formulario" id="formApelacion">
+        <label class="campo">
+          <span class="campo__etiqueta">Tu explicación</span>
+          <textarea class="campo__input" id="aTexto" rows="4" required
+                    placeholder="Ej.: ese día mi vehículo estaba en el taller, adjunto factura."></textarea>
+        </label>
+        <button class="btn btn--primary btn--bloque" type="submit">Enviar apelación</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/panel.js"></script>
+</body>
+</html>

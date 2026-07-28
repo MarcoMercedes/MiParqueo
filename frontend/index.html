@@ -19,7 +19,8 @@
         <span class="brand__mark" aria-hidden="true">P</span>
         <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
       </a>
-      <button class="btn btn--ghost" id="btnRegistroTop">Registrar mi vehículo</button>
+      <a class="btn btn--ghost" href="entrar.html" data-si-invitado>Entrar</a>
+      <a class="btn btn--ghost" href="app.html" data-si-sesion hidden>Mi parqueo</a>
     </div>
   </header>
 
@@ -112,7 +113,7 @@
         </div>
       </div>
 
-      <p class="zonas__nota">Los espacios se actualizan con cada entrada y salida registrada en las casetas.</p>
+      <p class="zonas__nota">Los espacios se actualizan cada vez que alguien solicita uno o marca su salida.</p>
     </section>
 
     <!-- ============ CÓMO FUNCIONA ============ -->
@@ -128,17 +129,17 @@
         </li>
         <li class="paso">
           <span class="paso__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM21 14v.01M14 21h.01M18 18h3v3"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a7 7 0 1 1 14 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>
           </span>
-          <h3>Escanea tu QR</h3>
-          <p>Muestra tu código en la entrada y la barrera te da paso sin filas.</p>
+          <h3>Solicita tu espacio</h3>
+          <p>La app te asigna uno numerado y te lo reserva por seis horas.</p>
         </li>
         <li class="paso">
           <span class="paso__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
           </span>
-          <h3>Parquea y listo</h3>
-          <p>Ve directo a tu zona. Sin vueltas, sin adivinar.</p>
+          <h3>Marca tu salida</h3>
+          <p>Al irte lo liberas para el siguiente. Si te quedas más, extiendes seis horas.</p>
         </li>
       </ol>
     </section>
@@ -148,14 +149,15 @@
       <h2 id="accionesTitle" class="visually-hidden">Acciones</h2>
       <div class="acciones__grid">
         <article class="accion accion--registro">
-          <h3>Registra tu vehículo una sola vez</h3>
-          <p>Con tu correo institucional y la placa. Toma menos de dos minutos.</p>
-          <button class="btn btn--primary" id="btnRegistro">Registrar mi vehículo</button>
+          <h3>Entra con tu correo institucional</h3>
+          <p>Sin contraseñas: te mandamos un enlace. Registras tu vehículo una vez y ya puedes solicitar parqueo.</p>
+          <a class="btn btn--primary" href="entrar.html" data-si-invitado>Entrar</a>
+          <a class="btn btn--primary" href="app.html" data-si-sesion hidden>Ir a mi parqueo</a>
         </article>
         <article class="accion accion--reporte">
-          <h3>¿Viste un problema en el parqueo?</h3>
-          <p>Un vehículo mal estacionado, una luz dañada, lo que sea: avísanos.</p>
-          <button class="btn btn--outline" id="btnReporte">Reportar un problema</button>
+          <h3>¿Alguien se puso en tu espacio?</h3>
+          <p>Repórtalo con foto desde la app: te asignamos otro al instante y un administrador revisa el caso.</p>
+          <a class="btn btn--outline" href="app.html">Ir a mi parqueo</a>
         </article>
       </div>
     </section>
@@ -163,21 +165,9 @@
 
   <footer class="footer">
     <p><strong>MiParqueo</strong> · Proyecto Integrador de Software · PUCMM</p>
-    <p class="footer__mini">Los datos en modo demostración son simulados.</p>
+    <p class="footer__mini">Campus Santo Tomás de Aquino, Santo Domingo.</p>
   </footer>
 
-  <!-- ============ MODAL ============ -->
-  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
-    <div class="modal__backdrop" data-close></div>
-    <div class="modal__card">
-      <button class="modal__close" data-close aria-label="Cerrar">×</button>
-      <h3 id="modalTitle">—</h3>
-      <p id="modalBody">—</p>
-      <p class="modal__hint">Esta pantalla es parte del boceto: aquí iría el formulario real.</p>
-    </div>
-  </div>
-
-  <!-- Supabase (solo se usa si js/config.js tiene credenciales) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
