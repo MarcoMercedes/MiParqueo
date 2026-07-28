@@ -129,11 +129,16 @@ const MiParqueo = (() => {
 
     // ---------- Vehículos ----------
 
+    // Se filtra por usuario a mano, no basta con RLS: un administrador
+    // tiene permiso de ver los vehículos de todos, y en su panel
+    // personal debe ver solo los suyos.
     async misVehiculos() {
       exigirConfig();
+      const sesion = await this.sesion();
       const { data, error } = await db
         .from("vehiculos")
         .select("id, placa, marca, modelo, color")
+        .eq("usuario_id", sesion.user.id)
         .order("creado_en");
       if (error) throw fallo(error);
       return data;
@@ -170,6 +175,7 @@ const MiParqueo = (() => {
 
     async miAsignacion() {
       exigirConfig();
+      const sesion = await this.sesion();
       const { data, error } = await db
         .from("asignaciones")
         .select(
@@ -177,6 +183,7 @@ const MiParqueo = (() => {
             "espacios(id, codigo, zona_id, zonas(nombre, referencia)), " +
             "vehiculos(placa, marca, modelo, color)"
         )
+        .eq("usuario_id", sesion.user.id)
         .is("salida_en", null)
         .gt("vence_en", new Date().toISOString())
         .maybeSingle();
@@ -202,9 +209,11 @@ const MiParqueo = (() => {
 
     async historial(limite = 20) {
       exigirConfig();
+      const sesion = await this.sesion();
       const { data, error } = await db
         .from("asignaciones")
         .select("id, inicio, vence_en, salida_en, cerrada_por, espacios(codigo, zonas(nombre))")
+        .eq("usuario_id", sesion.user.id)
         .order("inicio", { ascending: false })
         .limit(limite);
       if (error) throw fallo(error);
