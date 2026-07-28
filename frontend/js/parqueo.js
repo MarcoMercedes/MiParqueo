@@ -132,6 +132,18 @@ const Parqueo = (() => {
     return pts.length > 2 ? pts : null;
   }
 
+  // El viewBox sigue la proporción de la foto: si fuera siempre cuadrado,
+  // una imagen apaisada estiraría el eje X y deformaría las etiquetas.
+  let ALTO_MAPA = 1000;
+
+  function ajustarViewBox() {
+    const img = document.querySelector(".mapaReal img");
+    const capa = $("capaZonas");
+    if (!img || !capa || !img.naturalWidth) return;
+    ALTO_MAPA = Math.round((1000 * img.naturalHeight) / img.naturalWidth);
+    capa.setAttribute("viewBox", `0 0 1000 ${ALTO_MAPA}`);
+  }
+
   function pintarMapa(zonas) {
     const capa = $("capaZonas");
     if (!capa) return;
@@ -161,7 +173,7 @@ const Parqueo = (() => {
       const xs = pts.map((p) => p[0]);
       const ys = pts.map((p) => p[1]);
       const cx = Math.min(946, Math.max(54, (Math.min(...xs) + Math.max(...xs)) / 2));
-      const cy = Math.max(30, Math.min(...ys) - 22);
+      const cy = Math.max(24, Math.min(ALTO_MAPA - 24, Math.min(...ys) - 22));
 
       const pill = crear("g", { class: "zonaMapa__pill", transform: `translate(${cx},${cy})` });
       pill.appendChild(crear("rect", { x: -52, y: -17, width: 104, height: 34, rx: 17 }));
@@ -372,6 +384,12 @@ const Parqueo = (() => {
   }
 
   function conectar() {
+    const img = document.querySelector(".mapaReal img");
+    if (img) {
+      if (img.complete) ajustarViewBox();
+      img.addEventListener("load", () => { ajustarViewBox(); pintarMapa(ultimasZonas); });
+    }
+
     $("capaZonas").addEventListener("click", (e) => {
       const g = e.target.closest("[data-zona]");
       if (g) abrirReserva(g.dataset.zona);

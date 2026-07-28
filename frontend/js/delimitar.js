@@ -29,6 +29,18 @@
   let activa = ZONAS[0].id;
   let arrastrando = null;
 
+  // El viewBox sigue la proporción de la foto: si fuera siempre cuadrado,
+  // una imagen apaisada estiraría el eje X y deformaría puntos y textos.
+  let ALTO = 1000;
+
+  function ajustarViewBox() {
+    const img = document.getElementById("mapa");
+    if (!img.naturalWidth) return;
+    ALTO = Math.round((1000 * img.naturalHeight) / img.naturalWidth);
+    capa.setAttribute("viewBox", `0 0 1000 ${ALTO}`);
+    pintar();
+  }
+
   const puntos = (id) => (poligonos[id] = poligonos[id] || []);
   const color = (id) => ZONAS.find((z) => z.id === id).color;
 
@@ -38,12 +50,12 @@
 
   // ---------- Coordenadas ----------
 
-  // De píxeles del navegador a unidades del viewBox (0–1000).
+  // De píxeles del navegador a unidades del viewBox.
   function aViewBox(evento) {
     const caja = capa.getBoundingClientRect();
     return {
       x: Math.round(((evento.clientX - caja.left) / caja.width) * 1000 * 10) / 10,
-      y: Math.round(((evento.clientY - caja.top) / caja.height) * 1000 * 10) / 10,
+      y: Math.round(((evento.clientY - caja.top) / caja.height) * ALTO * 10) / 10,
     };
   }
 
@@ -126,7 +138,7 @@
 
     salida.value =
       "/* Contornos de las zonas sobre assets/mapa_pucmm.jpg\n" +
-      "   Unidades del viewBox 0 0 1000 1000. */\n" +
+      `   Unidades del viewBox 0 0 1000 ${ALTO}. */\n` +
       "const ZONAS_MAPA = {\n" + cuerpo + "\n};\n";
   }
 
@@ -199,6 +211,10 @@
     a.click();
     URL.revokeObjectURL(a.href);
   });
+
+  const imagen = document.getElementById("mapa");
+  if (imagen.complete) ajustarViewBox();
+  imagen.addEventListener("load", ajustarViewBox);
 
   pintar();
 })();
