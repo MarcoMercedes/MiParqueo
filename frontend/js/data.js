@@ -218,17 +218,27 @@ const MiParqueo = (() => {
       return rpc("cancelar_parqueo");
     },
 
-    async historial(limite = 20) {
+    // Página del historial. Devuelve las filas y cuántas hay en total,
+    // para saber si queda algo por cargar.
+    async historialPagina(limite = 10, desde = 0) {
       exigirConfig();
       const sesion = await this.sesion();
-      const { data, error } = await db
+      const { data, error, count } = await db
         .from("asignaciones")
-        .select("id, inicio, vence_en, salida_en, cerrada_por, espacios(codigo, zonas(nombre))")
+        .select(
+          "id, inicio, vence_en, salida_en, cerrada_por, espacios(codigo, zonas(nombre))",
+          { count: "exact" }
+        )
         .eq("usuario_id", sesion.user.id)
         .order("inicio", { ascending: false })
-        .limit(limite);
+        .range(desde, desde + limite - 1);
       if (error) throw fallo(error);
-      return data;
+      return { filas: data, total: count ?? data.length };
+    },
+
+    async historial(limite = 10) {
+      const { filas } = await this.historialPagina(limite, 0);
+      return filas;
     },
 
     // ---------- Reportes ----------

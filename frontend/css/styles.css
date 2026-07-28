@@ -130,6 +130,12 @@ img { max-width: 100%; display: block; }
   background: linear-gradient(180deg, rgba(8, 44, 80, 0.55) 0%, rgba(8, 44, 80, 0.35) 45%, rgba(8, 44, 80, 0.72) 100%);
 }
 .hero__content { position: relative; z-index: 1; padding: 4rem 1.5rem; max-width: 720px; }
+
+/* El parqueo es una herramienta, no una portada: el hero se encoge
+   para que las zonas queden a la vista sin desplazarse. */
+.hero--compacto { min-height: 34vh; }
+.hero--compacto .hero__content { padding: 2.5rem 1.5rem 3.5rem; }
+.hero--compacto .hero__title { font-size: clamp(1.9rem, 4.5vw, 2.8rem); }
 .hero__eyebrow {
   text-transform: uppercase; letter-spacing: 0.14em;
   font-size: 0.8rem; font-weight: 600;
@@ -307,6 +313,14 @@ img { max-width: 100%; display: block; }
 .zona--destello { animation: destello 900ms ease-out 2; }
 
 .zonas__nota { color: var(--gris); font-size: 0.9rem; margin: 1rem 0 0; }
+
+/* Pie de la tarjeta de zona: contador a la izquierda, solicitar a la derecha */
+.zona__pie {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 0.75rem; flex-wrap: wrap;
+}
+.zona__pie .zona__numero { margin: 0.3rem 0 0; }
+.zona__pie .btn { margin-bottom: 0.2rem; }
 
 /* ---------- Pasos ---------- */
 .pasos { max-width: 1120px; margin: 3.5rem auto 0; padding: 0 1.25rem; text-align: center; }
@@ -513,6 +527,30 @@ textarea.campo__input { resize: vertical; }
   margin-bottom: 1.25rem;
 }
 .bloque__titulo { font-family: var(--display); font-size: 1.25rem; margin: 0 0 0.5rem; }
+.bloque__cabecera {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+.bloque__cabecera .bloque__titulo { margin: 0; }
+
+/* ---------- Cabecera del perfil ---------- */
+.perfil__cabecera {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap;
+}
+.perfil__nombre { font-family: var(--display); font-size: 1.5rem; margin: 0.1rem 0 0.2rem; }
+.perfil__strikes {
+  text-align: center; padding: 0.85rem 1.4rem;
+  border-radius: 14px; background: var(--ok-tinte); color: #14663a;
+  border: 1px solid #bfe3cf;
+}
+.perfil__strikes--riesgo { background: var(--medio-tinte); color: var(--medio); border-color: #f2d6b3; }
+.perfil__strikes--suspendido { background: var(--lleno-tinte); color: var(--lleno); border-color: #f0c4c4; }
+.perfil__strikesNum {
+  display: block; font-family: var(--display); font-weight: 700;
+  font-size: 2.2rem; line-height: 1;
+}
+.perfil__strikesLbl { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .bloque__eyebrow {
   text-transform: uppercase; letter-spacing: 0.12em;
   font-size: 0.72rem; font-weight: 700; color: var(--gris);
@@ -613,6 +651,7 @@ textarea.campo__input { resize: vertical; }
   white-space: nowrap;
 }
 .etiqueta--pendiente { background: var(--medio-tinte); color: var(--medio); }
+.tarjeta__pie--nota { color: var(--gris); font-size: 0.82rem; }
 .etiqueta--validado, .etiqueta--lleno { background: var(--lleno-tinte); color: var(--lleno); }
 .etiqueta--rechazado, .etiqueta--ok { background: var(--ok-tinte); color: var(--ok); }
 .etiqueta--medio { background: var(--medio-tinte); color: var(--medio); }

@@ -15,15 +15,15 @@
 
   <header class="topbar">
     <div class="topbar__inner">
-      <a class="brand" href="#inicio" data-ir="inicio">
+      <a class="brand" href="#" data-ir="inicio">
         <span class="brand__mark" aria-hidden="true">P</span>
         <span class="brand__text">MiParqueo <span class="brand__campus">· PUCMM</span></span>
       </a>
 
       <nav class="nav" aria-label="Secciones" data-si-sesion hidden>
-        <button class="nav__enlace nav__enlace--activo" data-ir="inicio">Disponibilidad</button>
-        <button class="nav__enlace" data-ir="panel">Mi parqueo</button>
-        <button class="nav__enlace" data-ir="admin" data-si-admin hidden>Administración</button>
+        <button class="nav__enlace nav__enlace--activo" data-ir="inicio" data-si-estudiante>Parqueo</button>
+        <button class="nav__enlace" data-ir="perfil" data-si-estudiante>Mi perfil</button>
+        <button class="nav__enlace" data-ir="admin" data-si-admin hidden>Revisión de reportes</button>
       </nav>
 
       <div class="topbar__usuario">
@@ -36,42 +36,26 @@
   <main>
 
   <!-- ==================================================================
-       VISTA: DISPONIBILIDAD (inicio)
+       VISTA: PARQUEO  (disponibilidad + solicitar + parqueo activo)
        ================================================================== -->
-  <section class="vista" id="vistaInicio">
+  <section class="vista" id="vistaInicio" hidden>
 
-    <div class="hero">
+    <div class="hero hero--compacto">
       <div class="hero__media" aria-hidden="true">
         <img src="assets/campus.jpg" alt=""
              onerror="this.closest('.hero__media').classList.add('hero__media--fallback'); this.remove();" />
       </div>
       <div class="hero__scrim" aria-hidden="true"></div>
-      <svg class="hero__skyline" viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-        <g fill="#082c50">
-          <rect x="0" y="150" width="1200" height="40"/>
-          <rect x="80" y="96" width="130" height="60" rx="4"/>
-          <rect x="230" y="116" width="90" height="40" rx="4"/>
-          <rect x="410" y="60" width="46" height="96" rx="3"/>
-          <rect x="402" y="52" width="62" height="12" rx="4"/>
-          <rect x="480" y="100" width="150" height="56" rx="4"/>
-          <rect x="660" y="120" width="110" height="36" rx="4"/>
-          <rect x="880" y="88" width="140" height="68" rx="4"/>
-          <path d="M355 156 q-4 -38 -18 -50 q16 6 20 22 q2 -30 -8 -46 q18 10 20 40 q6 -24 18 -30 q-10 18 -8 64 z"/>
-          <path d="M1075 156 q-4 -34 -16 -45 q14 5 18 20 q2 -27 -7 -41 q16 9 18 36 q5 -21 16 -27 q-9 16 -7 57 z"/>
-        </g>
-      </svg>
       <div class="hero__content">
         <p class="hero__eyebrow">Campus Santo Tomás de Aquino · Santo Domingo</p>
         <h1 class="hero__title">¿Dónde parqueo hoy?</h1>
-        <p class="hero__sub">Mira los espacios libres por zona antes de entrar al campus.</p>
-        <a class="btn btn--primary btn--lg" href="#zonas">Ver disponibilidad</a>
         <p class="hero__meta" id="heroMeta">Actualizando…</p>
       </div>
     </div>
 
     <section class="zonas" id="zonas" aria-labelledby="zonasTitle">
       <div class="zonas__head">
-        <h2 id="zonasTitle">Disponibilidad por zona</h2>
+        <h2 id="zonasTitle">Selecciona tu zona</h2>
         <span class="live" aria-live="polite"><span class="live__dot" aria-hidden="true"></span> <span id="liveLabel">En vivo</span></span>
       </div>
 
@@ -115,60 +99,147 @@
             <span><i class="dot dot--medio"></i> Casi llena</span>
             <span><i class="dot dot--lleno"></i> Llena</span>
           </div>
-          <p class="mapa__ayuda">Toca una zona del mapa para ver su detalle.</p>
         </div>
 
-        <div class="zonas__cards" id="zonasGrid">
-          <noscript><p>Activa JavaScript para ver la disponibilidad en vivo.</p></noscript>
+        <div class="zonas__cards">
+          <div class="campo campo--inline" id="selectorVehiculo" hidden>
+            <label class="campo__etiqueta" for="vehiculoActivo">¿Con cuál vehículo?</label>
+            <select class="campo__input" id="vehiculoActivo"></select>
+          </div>
+
+          <p class="aviso aviso--medio" id="avisoSinVehiculo" hidden>
+            Necesitas un vehículo registrado para solicitar parqueo.
+            <button class="enlace" type="button" data-ir="perfil">Registrarlo en Mi perfil</button>
+          </p>
+
+          <div id="zonasGrid">
+            <noscript><p>Activa JavaScript para ver la disponibilidad en vivo.</p></noscript>
+          </div>
         </div>
       </div>
-
-      <p class="zonas__nota">Los espacios se actualizan cada vez que alguien solicita uno o marca su salida.</p>
     </section>
 
-    <section class="pasos" aria-labelledby="pasosTitle">
-      <h2 id="pasosTitle">Así de simple</h2>
-      <ol class="pasos__list">
-        <li class="paso">
-          <span class="paso__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </span>
-          <h3>Mira la zona</h3>
-          <p>Abre la página y revisa dónde hay espacios antes de llegar.</p>
-        </li>
-        <li class="paso">
-          <span class="paso__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-4.35-7-10a7 7 0 1 1 14 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.5"/></svg>
-          </span>
-          <h3>Solicita tu espacio</h3>
-          <p>La app te asigna uno numerado y te lo reserva por seis horas.</p>
-        </li>
-        <li class="paso">
-          <span class="paso__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-          </span>
-          <h3>Marca tu salida</h3>
-          <p>Al irte lo liberas para el siguiente. Si te quedas más, extiendes seis horas.</p>
-        </li>
-      </ol>
-    </section>
+    <!-- ====== TU PARQUEO: contador, extender, salir, reportar ====== -->
+    <div class="panelUsuario">
+      <p class="aviso" id="avisoParqueo" hidden></p>
 
-    <section class="acciones" aria-labelledby="accionesTitle">
-      <h2 id="accionesTitle" class="visually-hidden">Acciones</h2>
-      <div class="acciones__grid">
-        <article class="accion accion--registro">
-          <h3>Entra con tu correo institucional</h3>
-          <p>Registras tu vehículo una vez y ya puedes solicitar parqueo en la zona que quieras.</p>
-          <button class="btn btn--primary" data-ir="entrar" data-si-invitado>Entrar</button>
-          <button class="btn btn--primary" data-ir="panel" data-si-sesion hidden>Ir a mi parqueo</button>
-        </article>
-        <article class="accion accion--reporte">
-          <h3>¿Alguien se puso en tu espacio?</h3>
-          <p>Repórtalo con foto: te asignamos otro al instante y un administrador revisa el caso.</p>
-          <button class="btn btn--outline" data-ir="panel">Ir a mi parqueo</button>
-        </article>
-      </div>
-    </section>
+      <section class="bloque bloque--sancion" id="bloqueSancion" hidden>
+        <h2>Acceso al parqueo suspendido</h2>
+        <p>
+          Tienes <strong id="strikesTotal">3</strong> reportes validados en tu contra.
+          No puedes solicitar parqueo y se te aplicará la multa correspondiente.
+          Si crees que hay un error, apela desde
+          <button class="enlace" type="button" data-ir="perfil">Mi perfil</button>.
+        </p>
+      </section>
+
+      <section class="bloque bloque--activo" id="bloqueActivo" hidden>
+        <p class="bloque__eyebrow">Tu parqueo</p>
+        <p class="espacio__codigo" id="espacioCodigo">—</p>
+        <p class="espacio__zona" id="espacioZona">—</p>
+
+        <div class="contador" id="contador">
+          <span class="contador__tiempo" id="contadorTiempo">—</span>
+          <span class="contador__etiqueta">restantes</span>
+        </div>
+        <div class="contador__barra"><span id="contadorBarra"></span></div>
+
+        <p class="espacio__vehiculo" id="espacioVehiculo">—</p>
+
+        <div class="acciones__fila">
+          <button class="btn btn--primary" id="btnSalida">Marcar mi salida</button>
+          <button class="btn btn--outline" id="btnExtender">Extender 6 horas más</button>
+          <button class="btn btn--peligro" id="btnReportar">Hay alguien en mi espacio</button>
+        </div>
+        <p class="nota" id="notaExtensiones"></p>
+      </section>
+
+      <section class="bloque bloque--alerta" id="bloqueVencido" hidden>
+        <h2>Tu tiempo se venció</h2>
+        <p>
+          Tu espacio quedó libre y puede asignarse a otra persona.
+          <strong>Si sigues parqueado ahí, esa persona puede reportarte y recibirías un strike.</strong>
+          Si aún estás en el campus, solicita un espacio de nuevo.
+        </p>
+        <button class="btn btn--ghost" id="btnEntendidoVencido">Entendido</button>
+      </section>
+    </div>
+  </section>
+
+
+  <!-- ==================================================================
+       VISTA: MI PERFIL  (vehículos, multas, historial)
+       ================================================================== -->
+  <section class="vista" id="vistaPerfil" hidden>
+    <div class="panelUsuario">
+      <p class="aviso" id="avisoPerfil" hidden></p>
+
+      <section class="bloque perfil__cabecera">
+        <div>
+          <p class="bloque__eyebrow">Estudiante</p>
+          <h2 class="perfil__nombre" id="perfilNombre">—</h2>
+          <p class="lista__meta" id="perfilCorreo">—</p>
+        </div>
+        <div class="perfil__strikes" id="perfilStrikes">
+          <span class="perfil__strikesNum" id="strikesNum">0</span>
+          <span class="perfil__strikesLbl">de 3 strikes</span>
+        </div>
+      </section>
+
+      <section class="bloque">
+        <h2 class="bloque__titulo">Mis vehículos</h2>
+        <p class="nota">
+          La placa es lo que permite identificar a quien ocupe tu espacio,
+          y también a ti si ocupas el de otro.
+        </p>
+
+        <ul class="lista" id="listaVehiculos"></ul>
+
+        <form class="formulario formulario--grid" id="formVehiculo">
+          <label class="campo">
+            <span class="campo__etiqueta">Placa</span>
+            <input class="campo__input" id="vPlaca" placeholder="A123456" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Marca</span>
+            <input class="campo__input" id="vMarca" placeholder="Toyota" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Modelo</span>
+            <input class="campo__input" id="vModelo" placeholder="Corolla" required />
+          </label>
+          <label class="campo">
+            <span class="campo__etiqueta">Color</span>
+            <input class="campo__input" id="vColor" placeholder="Gris" required />
+          </label>
+          <button class="btn btn--primary" type="submit">Registrar vehículo</button>
+        </form>
+      </section>
+
+      <section class="bloque">
+        <h2 class="bloque__titulo">Multas y reportes en mi contra</h2>
+        <p class="nota">
+          Un reporte solo cuenta como strike si un administrador lo valida
+          revisando la evidencia. A los tres strikes se aplica la multa y se
+          suspende el acceso al parqueo. Puedes apelar cualquiera.
+        </p>
+        <ul class="lista" id="listaMisReportes"></ul>
+      </section>
+
+      <section class="bloque">
+        <div class="bloque__cabecera">
+          <h2 class="bloque__titulo">Historial de parqueos</h2>
+          <button class="btn btn--outline btn--mini" id="btnHistorial" aria-expanded="false">
+            Ver historial
+          </button>
+        </div>
+        <div id="zonaHistorial" hidden>
+          <ul class="lista lista--compacta" id="listaHistorial"></ul>
+          <button class="btn btn--ghost btn--bloque" id="btnMasHistorial" hidden>Ver 10 más</button>
+          <p class="nota" id="notaHistorial"></p>
+        </div>
+      </section>
+    </div>
   </section>
 
 
@@ -223,110 +294,7 @@
 
 
   <!-- ==================================================================
-       VISTA: MI PARQUEO
-       ================================================================== -->
-  <section class="vista" id="vistaPanel" hidden>
-    <div class="panelUsuario">
-      <p class="aviso" id="avisoPanel" hidden></p>
-
-      <section class="bloque bloque--sancion" id="bloqueSancion" hidden>
-        <h2>Acceso al parqueo suspendido</h2>
-        <p>
-          Tienes <strong id="strikesTotal">3</strong> reportes validados en tu contra.
-          No puedes solicitar parqueo y se te aplicará la multa correspondiente.
-          Si crees que hay un error, apela los reportes más abajo.
-        </p>
-      </section>
-
-      <section class="bloque bloque--activo" id="bloqueActivo" hidden>
-        <p class="bloque__eyebrow">Tu parqueo</p>
-        <p class="espacio__codigo" id="espacioCodigo">—</p>
-        <p class="espacio__zona" id="espacioZona">—</p>
-
-        <div class="contador" id="contador">
-          <span class="contador__tiempo" id="contadorTiempo">—</span>
-          <span class="contador__etiqueta">restantes</span>
-        </div>
-        <div class="contador__barra"><span id="contadorBarra"></span></div>
-
-        <p class="espacio__vehiculo" id="espacioVehiculo">—</p>
-
-        <div class="acciones__fila">
-          <button class="btn btn--primary" id="btnSalida">Marcar mi salida</button>
-          <button class="btn btn--outline" id="btnExtender">Extender 6 horas más</button>
-          <button class="btn btn--peligro" id="btnReportar">Hay alguien en mi espacio</button>
-        </div>
-        <p class="nota" id="notaExtensiones"></p>
-      </section>
-
-      <section class="bloque bloque--alerta" id="bloqueVencido" hidden>
-        <h2>Tu tiempo se venció</h2>
-        <p>
-          Tu espacio quedó libre y puede asignarse a otra persona.
-          <strong>Si sigues parqueado ahí, esa persona puede reportarte y recibirías un strike.</strong>
-          Si aún estás en el campus, solicita un espacio de nuevo.
-        </p>
-        <button class="btn btn--ghost" id="btnEntendidoVencido">Entendido</button>
-      </section>
-
-      <section class="bloque" id="bloqueSolicitar" hidden>
-        <h2 class="bloque__titulo">Solicitar parqueo</h2>
-        <div class="campo campo--inline" id="selectorVehiculo">
-          <label class="campo__etiqueta" for="vehiculoActivo">¿Con cuál vehículo?</label>
-          <select class="campo__input" id="vehiculoActivo"></select>
-        </div>
-        <div class="zonasSolicitar" id="zonasSolicitar"></div>
-      </section>
-
-      <section class="bloque" id="bloqueVehiculos">
-        <h2 class="bloque__titulo">Mis vehículos</h2>
-        <p class="nota" id="notaVehiculos">
-          Necesitas al menos un vehículo registrado para solicitar parqueo.
-          La placa es lo que permite identificar a quien ocupe tu espacio.
-        </p>
-
-        <ul class="lista" id="listaVehiculos"></ul>
-
-        <form class="formulario formulario--grid" id="formVehiculo">
-          <label class="campo">
-            <span class="campo__etiqueta">Placa</span>
-            <input class="campo__input" id="vPlaca" placeholder="A123456" required />
-          </label>
-          <label class="campo">
-            <span class="campo__etiqueta">Marca</span>
-            <input class="campo__input" id="vMarca" placeholder="Toyota" required />
-          </label>
-          <label class="campo">
-            <span class="campo__etiqueta">Modelo</span>
-            <input class="campo__input" id="vModelo" placeholder="Corolla" required />
-          </label>
-          <label class="campo">
-            <span class="campo__etiqueta">Color</span>
-            <input class="campo__input" id="vColor" placeholder="Gris" required />
-          </label>
-          <button class="btn btn--primary" type="submit">Registrar vehículo</button>
-        </form>
-      </section>
-
-      <section class="bloque" id="bloqueMisReportes" hidden>
-        <h2 class="bloque__titulo">Reportes en mi contra</h2>
-        <p class="nota">
-          Un reporte solo cuenta como strike si un administrador lo valida
-          revisando la evidencia. Puedes apelar cualquiera de ellos.
-        </p>
-        <ul class="lista" id="listaMisReportes"></ul>
-      </section>
-
-      <section class="bloque" id="bloqueHistorial" hidden>
-        <h2 class="bloque__titulo">Mi historial</h2>
-        <ul class="lista lista--compacta" id="listaHistorial"></ul>
-      </section>
-    </div>
-  </section>
-
-
-  <!-- ==================================================================
-       VISTA: ADMINISTRACIÓN
+       VISTA: REVISIÓN (administración)
        ================================================================== -->
   <section class="vista" id="vistaAdmin" hidden>
     <div class="panelUsuario">
@@ -342,7 +310,7 @@
         <h2 class="bloque__titulo">Reportes por revisar</h2>
         <p class="nota">
           Un reporte solo se convierte en strike si lo validas aquí. Con tres strikes
-          validados el usuario pierde el acceso al parqueo y se le aplica la multa.
+          validados el estudiante pierde el acceso al parqueo y se le aplica la multa.
           Revisa la evidencia antes de decidir.
         </p>
 
@@ -359,7 +327,7 @@
         <h2 class="bloque__titulo">Apelaciones por resolver</h2>
         <p class="nota">
           Si aceptas la apelación, el reporte pasa a rechazado y el strike desaparece
-          del expediente del usuario.
+          del expediente del estudiante.
         </p>
         <ul class="lista" id="listaApelaciones"></ul>
       </section>
@@ -463,7 +431,7 @@
       <p id="textoResolver">—</p>
       <form class="formulario" id="formResolver">
         <label class="campo">
-          <span class="campo__etiqueta">Nota (queda visible para el usuario)</span>
+          <span class="campo__etiqueta">Nota (queda visible para el estudiante)</span>
           <textarea class="campo__input" id="notaResolver" rows="3"
                     placeholder="Ej.: la foto muestra claramente la placa en el espacio A1-037."></textarea>
         </label>
@@ -491,8 +459,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/config.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/disponibilidad.js"></script>
-  <script src="js/panel.js"></script>
+  <script src="js/parqueo.js"></script>
+  <script src="js/perfil.js"></script>
   <script src="js/admin.js"></script>
   <script src="js/app.js"></script>
 </body>

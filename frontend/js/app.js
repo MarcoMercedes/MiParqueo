@@ -2,8 +2,11 @@
    MiParqueo · controlador de la aplicación
 
    Una sola página. Aquí se decide qué sección se ve, quién ha
-   iniciado sesión y qué puede hacer. Cada sección vive en su
-   propio archivo (disponibilidad, panel, admin) y este las llama.
+   iniciado sesión y qué le toca a cada quien.
+
+   Estudiantes y administración usan la misma aplicación pero no
+   comparten nada: el estudiante solicita y reporta; la
+   administración revisa. Un administrador no parquea.
    ============================================================ */
 
 (function () {
@@ -11,29 +14,30 @@
 
   const $ = (id) => document.getElementById(id);
 
-  // Sin sesión no se ve nada de la aplicación: lo primero y lo único
-  // es el acceso.
   const VISTAS = {
     entrar: { seccion: "vistaEntrar", soloInvitado: true },
-    inicio: { seccion: "vistaInicio", requiereSesion: true },
-    panel: { seccion: "vistaPanel", requiereSesion: true },
-    admin: { seccion: "vistaAdmin", requiereAdmin: true },
+    inicio: { seccion: "vistaInicio", soloEstudiante: true },
+    perfil: { seccion: "vistaPerfil", soloEstudiante: true },
+    admin: { seccion: "vistaAdmin", soloAdmin: true },
   };
 
   let perfil = null;
   let vistaActual = null;
 
+  const esAdmin = () => !!perfil && perfil.rol === "admin";
+  const esEstudiante = () => !!perfil && perfil.rol !== "admin";
+
+  // A dónde va cada quien al entrar.
+  const vistaPorDefecto = () => (!perfil ? "entrar" : esAdmin() ? "admin" : "inicio");
+
   // ---------- Estado de sesión ----------
 
   function pintarSesion() {
-    const hay = !!perfil;
-    const esAdmin = hay && perfil.rol === "admin";
-
-    document.querySelectorAll("[data-si-sesion]").forEach((el) => (el.hidden = !hay));
-    document.querySelectorAll("[data-si-invitado]").forEach((el) => (el.hidden = hay));
-    document.querySelectorAll("[data-si-admin]").forEach((el) => (el.hidden = !esAdmin));
-
-    $("usuarioNombre").textContent = hay ? perfil.nombre : "";
+    document.querySelectorAll("[data-si-sesion]").forEach((el) => (el.hidden = !perfil));
+    document.querySelectorAll("[data-si-invitado]").forEach((el) => (el.hidden = !!perfil));
+    document.querySelectorAll("[data-si-admin]").forEach((el) => (el.hidden = !esAdmin()));
+    document.querySelectorAll("[data-si-estudiante]").forEach((el) => (el.hidden = !esEstudiante()));
+    $("usuarioNombre").textContent = perfil ? perfil.nombre : "";
   }
 
   async function releerPerfil() {
@@ -43,21 +47,24 @@
 
   // ---------- Navegación ----------
 
-  function irA(nombre, { reemplazar = false } = {}) {
-    let destino = VISTAS[nombre] ? nombre : (perfil ? "inicio" : "entrar");
-    const v = VISTAS[destino];
+  function permitida(nombre) {
+    const v = VISTAS[nombre];
+    if (!v) return false;
+    if (v.soloInvitado) return !perfil;
+    if (v.soloAdmin) return esAdmin();
+    if (v.soloEstudiante) return esEstudiante();
+    return !!perfil;
+  }
 
-    // Reglas de acceso: nadie llega a donde no le toca, ni escribiendo
-    // la dirección a mano.
-    if (v.requiereAdmin && (!perfil || perfil.rol !== "admin")) destino = perfil ? "panel" : "entrar";
-    else if (v.requiereSesion && !perfil) destino = "entrar";
-    else if (v.soloInvitado && perfil) destino = "panel";
+  function irA(nombre, { reemplazar = false } = {}) {
+    // Nadie llega a donde no le toca, ni escribiendo la dirección a mano.
+    const destino = permitida(nombre) ? nombre : vistaPorDefecto();
 
     if (destino !== vistaActual) {
-      if (vistaActual === "panel") Panel.ocultar();
+      if (vistaActual === "inicio") Parqueo.ocultar();
 
-      Object.entries(VISTAS).forEach(([nombre, cfg]) => {
-        $(cfg.seccion).hidden = nombre !== destino;
+      Object.entries(VISTAS).forEach(([n, cfg]) => {
+        $(cfg.seccion).hidden = n !== destino;
       });
 
       document.querySelectorAll(".nav__enlace").forEach((b) =>
@@ -67,7 +74,8 @@
       vistaActual = destino;
       window.scrollTo({ top: 0, behavior: "auto" });
 
-      if (destino === "panel") Panel.mostrar();
+      if (destino === "inicio") Parqueo.mostrar();
+      if (destino === "perfil") Perfil.mostrar();
       if (destino === "admin") Admin.mostrar();
     }
 
@@ -80,11 +88,9 @@
 
   function vistaDeLaDireccion() {
     const nombre = location.hash.replace(/^#/, "");
-    if (VISTAS[nombre]) return nombre;
-    return perfil ? "inicio" : "entrar";
+    return VISTAS[nombre] ? nombre : vistaPorDefecto();
   }
 
-  // Cualquier elemento con data-ir cambia de sección.
   document.addEventListener("click", (e) => {
     const disparador = e.target.closest("[data-ir]");
     if (!disparador) return;
@@ -151,12 +157,11 @@
         formEntrar.reset();
         avisoAcceso.hidden = true;
         await releerPerfil();
-        Disponibilidad.iniciar();
-        irA("inicio");
+        irA(vistaPorDefecto());
         return;
       }
 
-      await MiParqueo.enviarEnlace(correo, $("nombre").value, location.href.split("#")[0] + "#panel");
+      await MiParqueo.enviarEnlace(correo, $("nombre").value, location.href.split("#")[0]);
       avisarAcceso(
         `Listo. Te enviamos un enlace a ${correo}. Ábrelo desde este mismo dispositivo.`,
         "ok"
@@ -173,7 +178,8 @@
   $("btnSalir").addEventListener("click", async () => {
     await MiParqueo.cerrarSesion();
     perfil = null;
-    Panel.reiniciar();
+    Parqueo.reiniciar();
+    Perfil.reiniciar();
     pintarSesion();
     irA("entrar");
   });
@@ -202,10 +208,17 @@
       );
       $("btnEnviar").disabled = true;
     } else {
-      // Se espera a saber si hay sesión antes de decidir la vista:
-      // así el enlace mágico del correo no cae en la pantalla de acceso.
+      // Se espera a saber si hay sesión antes de decidir la vista: así el
+      // enlace mágico del correo no cae en la pantalla de acceso.
       await releerPerfil();
-      if (perfil) Disponibilidad.iniciar();
+
+      if (esEstudiante()) {
+        // La disponibilidad cambia mientras miras la pantalla.
+        MiParqueo.suscribir(() => Parqueo.refrescarZonas());
+        setInterval(() => {
+          if (!document.hidden) Parqueo.refrescarZonas();
+        }, 30000);
+      }
     }
 
     $("cargando").hidden = true;
