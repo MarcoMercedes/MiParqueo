@@ -27,8 +27,12 @@ jobs:
       - name: Descargar el repositorio
         uses: actions/checkout@v4
 
+      # enablement activa Pages solo, sin tener que tocar los ajustes
+      # del repositorio a mano.
       - name: Preparar Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Empaquetar la carpeta frontend
         uses: actions/upload-pages-artifact@v3
