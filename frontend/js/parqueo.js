@@ -150,6 +150,7 @@ const Parqueo = (() => {
     capa.innerHTML = "";
 
     let alguna = false;
+    let orden = 0;
 
     zonas.forEach((z) => {
       const pts = contorno(z.id);
@@ -160,6 +161,8 @@ const Parqueo = (() => {
       const g = crear("g", {
         class: `zonaMapa zonaMapa--${estado.sufijo}`,
         tabindex: "0", role: "button",
+        // Entran escalonadas: se lee de dónde a dónde va cada zona.
+        style: reduceMotion ? "" : `animation-delay:${orden++ * 80}ms`,
         "aria-label": `${z.nombre}: ${z.libres} espacios libres de ${z.capacidad} (${estado.texto})`,
       });
       g.dataset.zona = z.id;
@@ -389,6 +392,29 @@ const Parqueo = (() => {
       if (img.complete) ajustarViewBox();
       img.addEventListener("load", () => { ajustarViewBox(); pintarMapa(ultimasZonas); });
     }
+
+    // Señalar una zona en el mapa resalta su tarjeta, y al revés: así se
+    // ve de un vistazo qué área del campus es cada nombre.
+    const resaltar = (id, encendido) => {
+      const card = $(`card-${id}`);
+      const area = $("capaZonas").querySelector(`[data-zona="${id}"]`);
+      if (card) card.classList.toggle("zona--resaltada", encendido);
+      if (area) area.classList.toggle("zonaMapa--resaltada", encendido);
+    };
+
+    const vincular = (contenedor, selector, leerId) => {
+      contenedor.addEventListener("pointerover", (e) => {
+        const el = e.target.closest(selector);
+        if (el) resaltar(leerId(el), true);
+      });
+      contenedor.addEventListener("pointerout", (e) => {
+        const el = e.target.closest(selector);
+        if (el) resaltar(leerId(el), false);
+      });
+    };
+
+    vincular($("capaZonas"), "[data-zona]", (el) => el.dataset.zona);
+    vincular($("zonasGrid"), ".zona", (el) => el.id.replace("card-", ""));
 
     $("capaZonas").addEventListener("click", (e) => {
       const g = e.target.closest("[data-zona]");
