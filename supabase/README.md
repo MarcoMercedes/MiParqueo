@@ -60,7 +60,7 @@ Sin esto, el enlace que llega al correo devuelve un error de redirección.
 Los administradores validan reportes, resuelven apelaciones y deshabilitan
 espacios. A propósito no hay forma de auto-nombrarse desde la aplicación.
 
-1. Abre `entrar.html` y crea tu cuenta con el correo institucional.
+1. Abre la aplicación y crea tu cuenta con el correo institucional.
 2. Vuelve al **SQL Editor** y corre:
 
 ```sql

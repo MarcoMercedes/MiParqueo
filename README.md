@@ -45,8 +45,8 @@ configuración toma unos diez minutos: [supabase/README.md](supabase/README.md).
 ```
 miparqueo/
 ├── frontend/
-│   ├── index.html                 Disponibilidad pública (incluye el mapa SVG)
-│   ├── entrar.html                Acceso con enlace mágico
+│   ├── index.html                 Acceso (raíz: login, o al panel si ya entraste)
+│   ├── disponibilidad.html        Disponibilidad pública (incluye el mapa SVG)
 │   ├── app.html                   Panel del usuario
 │   ├── admin.html                 Panel del administrador
 │   ├── css/styles.css             Paleta institucional + semáforo

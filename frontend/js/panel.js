@@ -492,7 +492,7 @@
 
     const sesion = await MiParqueo.sesion();
     if (!sesion) {
-      window.location.replace("entrar.html");
+      window.location.replace("index.html");
       return;
     }
 
