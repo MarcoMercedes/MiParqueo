@@ -49,7 +49,7 @@ const Parqueo = (() => {
 
   function notificar(titulo, cuerpo) {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
-    new Notification(titulo, { body: cuerpo, icon: "assets/favicon.svg" });
+    new Notification(titulo, { body: cuerpo, icon: "assets/favicon.png" });
   }
 
   // En las torres el piso va dentro del código: B1-P3-24 es el piso 3.
@@ -280,12 +280,7 @@ const Parqueo = (() => {
     $("bloqueSancion").hidden = !suspendido;
     $("strikesTotal").textContent = strikes;
 
-    $("selectorVehiculo").hidden = vehiculos.length < 2 || !!asignacion;
     $("avisoSinVehiculo").hidden = vehiculos.length > 0;
-
-    $("vehiculoActivo").innerHTML = vehiculos
-      .map((v) => `<option value="${v.id}">${v.placa} · ${v.marca} ${v.modelo}</option>`)
-      .join("");
 
     if (asignacion) {
       $("bloqueActivo").hidden = false;
@@ -390,10 +385,12 @@ const Parqueo = (() => {
     $("reservaDetalle").textContent =
       `${z.libres} de ${z.capacidad} espacios libres ahora mismo.`;
 
+    // La elección del vehículo se hace aquí, al confirmar, y no antes:
+    // es el único momento en que importa.
     $("reservaVehiculo").innerHTML = vehiculos
-      .map((v) => `<option value="${v.id}">${v.placa} · ${v.marca} ${v.modelo}</option>`)
+      .map((v) => `<option value="${v.id}">${v.placa} · ${v.marca} ${v.modelo} ${v.color}</option>`)
       .join("");
-    $("reservaSelector").hidden = !!motivo || vehiculos.length < 2;
+    $("reservaSelector").hidden = !!motivo || !vehiculos.length;
 
     $("reservaBloqueo").hidden = !motivo;
     $("reservaBloqueo").textContent = motivo || "";
@@ -442,20 +439,15 @@ const Parqueo = (() => {
     });
 
     $("btnConfirmarReserva").addEventListener("click", (e) => {
-      const vehiculo = vehiculos.length > 1 ? $("reservaVehiculo").value : (vehiculos[0] || {}).id;
+      const vehiculo = $("reservaVehiculo").value || (vehiculos[0] || {}).id;
       if (!vehiculo) return;
       reservar(zonaEnModal, vehiculo, e.target);
     });
 
+    // Tanto la tarjeta como el mapa llevan al mismo sitio: confirmar.
     $("zonasGrid").addEventListener("click", (e) => {
       const boton = e.target.closest("[data-solicitar]");
-      if (!boton) return;
-      const vehiculo = $("vehiculoActivo").value;
-      if (!vehiculo) {
-        avisar("Registra un vehículo en Mi perfil antes de solicitar parqueo.", "error");
-        return;
-      }
-      reservar(boton.dataset.solicitar, vehiculo, boton);
+      if (boton) abrirReserva(boton.dataset.solicitar);
     });
 
     $("btnSalida").addEventListener("click", (e) =>

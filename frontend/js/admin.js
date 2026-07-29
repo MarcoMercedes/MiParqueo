@@ -87,7 +87,7 @@ const Admin = (() => {
             ? `<a href="${r.foto_url}" target="_blank" rel="noopener" class="reporte__foto">
                  <img src="${r.foto_url}" alt="Evidencia fotográfica del reporte" loading="lazy" />
                </a>`
-            : `<p class="lista__meta">Sin evidencia fotográfica.</p>`}
+            : `<p class="lista__meta">No se subió evidencia.</p>`}
           ${acciones}
         </li>`;
     }).join("");
@@ -134,7 +134,7 @@ const Admin = (() => {
               ? `<a href="${r.foto_url}" target="_blank" rel="noopener" class="reporte__foto">
                    <img src="${r.foto_url}" alt="Evidencia del reporte apelado" loading="lazy" />
                  </a>`
-              : `<p class="lista__meta">Sin evidencia fotográfica.</p>`}
+              : `<p class="lista__meta">No se subió evidencia.</p>`}
           </details>
 
           <div class="acciones__fila">

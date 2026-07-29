@@ -91,12 +91,8 @@ img { max-width: 100%; display: block; }
   display: flex; align-items: center; justify-content: space-between;
 }
 .brand { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; color: var(--tinta); }
-.brand__mark {
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--azul); color: var(--blanco);
-  font-family: var(--display); font-weight: 700; font-size: 1.15rem;
-  display: grid; place-items: center;
-}
+.brand__logo { width: 40px; height: 40px; object-fit: contain; flex: none; }
+.brand--centrada .brand__logo { width: 68px; height: 68px; }
 .brand__text { font-family: var(--display); font-weight: 600; font-size: 1.15rem; }
 .brand__campus { color: var(--gris); font-weight: 500; }
 
@@ -193,6 +189,17 @@ img { max-width: 100%; display: block; }
   gap: 1rem;
   align-items: start;
   justify-content: center;
+}
+
+/* El mapa es lo que se mira primero: ocupa todo el ancho y las zonas
+   quedan debajo, en fila. */
+.panel--mapaArriba { grid-template-columns: 1fr; gap: 1.25rem; }
+.panel--mapaArriba .zonas__cards { display: block; }
+
+#zonasGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
 }
 
 /* ---------- Mapa ---------- */

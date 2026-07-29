@@ -96,7 +96,7 @@ const Perfil = (() => {
             ? `<a href="${r.foto_url}" target="_blank" rel="noopener" class="reporte__foto">
                  <img src="${r.foto_url}" alt="Evidencia del reporte" loading="lazy" />
                </a>`
-            : ""}
+            : `<p class="lista__meta">No se subió evidencia.</p>`}
           ${r.nota_admin ? `<p class="lista__meta">Nota del administrador: ${r.nota_admin}</p>` : ""}
           ${pie}
         </li>`;
@@ -216,6 +216,12 @@ const Perfil = (() => {
 
     $("btnMasHistorial").addEventListener("click", cargarPagina);
 
+    $("btnNuevoVehiculo").addEventListener("click", () => {
+      $("formVehiculo").reset();
+      $("modalVehiculo").hidden = false;
+      $("vPlaca").focus();
+    });
+
     $("formVehiculo").addEventListener("submit", async (e) => {
       e.preventDefault();
       await conBoton(e.target.querySelector("button[type=submit]"), "Registrando…", async () => {
@@ -226,6 +232,7 @@ const Perfil = (() => {
           color: $("vColor").value,
         });
         e.target.reset();
+        $("modalVehiculo").hidden = true;
         await recargar();
         avisar("Vehículo registrado.", "ok");
       });

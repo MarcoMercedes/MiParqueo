@@ -101,7 +101,7 @@ async function main() {
   check("asigna el primer espacio libre", espAna.codigo === "A1-001", `(${espAna.codigo})`);
 
   const dispo = async (z) => (await cli.query("select libres from disponibilidad where id=$1", [z])).rows[0].libres;
-  check("la disponibilidad baja sola", (await dispo("a1")) === "119", `(${await dispo("a1")})`);
+  check("la disponibilidad baja sola", (await dispo("a1")) === "299", `(${await dispo("a1")})`);
 
   await esperaError(cli, "select solicitar_parqueo('b1', $1)", [vAna.id],
     "Ya tienes un parqueo asignado", "impide pedir dos a la vez");
@@ -168,7 +168,7 @@ async function main() {
     "suspendido", "con 3 strikes no puede solicitar");
 
   console.log("\n9. Salida y espacios deshabilitados");
-  check("marcar salida devolvió el espacio", (await dispo("a1")) === "119", `(${await dispo("a1")})`);
+  check("marcar salida devolvió el espacio", (await dispo("a1")) === "299", `(${await dispo("a1")})`);
 
   // Las torres se llenan de abajo hacia arriba: el piso sale del numero
   // de espacio y solicitar_parqueo ya ordena por numero.
@@ -187,7 +187,7 @@ async function main() {
   const { rows: espacios } = await cli.query("select id from espacios where zona_id='pgp' limit 5");
   for (const e of espacios) await cli.query("select habilitar_espacio($1, false, 'Mantenimiento')", [e.id]);
   const pgz = (await cli.query("select capacidad, libres from disponibilidad where id='pgp'")).rows[0];
-  check("deshabilitar 5 baja la capacidad de Posgrado Plano a 15", pgz.capacidad === "15", `(${pgz.capacidad})`);
+  check("deshabilitar 5 baja la capacidad de Posgrado Plano a 295", pgz.capacidad === "295", `(${pgz.capacidad})`);
 
   await comoUsuario(cli, beto);
   await esperaError(cli, "select habilitar_espacio($1, false, 'x')", [espacios[0].id],

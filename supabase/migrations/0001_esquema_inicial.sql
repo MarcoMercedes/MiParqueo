@@ -773,11 +773,11 @@ insert into public.zonas (id, nombre, referencia, orden) values
   ('pgt', 'Posgrado Torre', 'Torre de posgrado, seis niveles'          , 3),
   ('pgp', 'Posgrado Plano', 'Parqueo a nivel del edificio de posgrado', 4);
 
--- Zonas a nivel: numeracion corrida.  A1-001..A1-120, PP-001..PP-020
+-- Zonas a nivel: numeracion corrida.  A1-001..A1-300, PP-001..PP-300
 insert into public.espacios (zona_id, numero, codigo)
-select 'a1', n, 'A1-' || lpad(n::text, 3, '0') from generate_series(1, 120) n
+select 'a1', n, 'A1-' || lpad(n::text, 3, '0') from generate_series(1, 300) n
 union all
-select 'pgp', n, 'PP-' || lpad(n::text, 3, '0') from generate_series(1, 20) n;
+select 'pgp', n, 'PP-' || lpad(n::text, 3, '0') from generate_series(1, 300) n;
 
 -- Torres: seis pisos de cincuenta.  B1-P1-01 .. B1-P6-50
 --
