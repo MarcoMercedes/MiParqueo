@@ -5,3 +5,6 @@ node_modules/
 
 # Cluster de PostgreSQL que crean las pruebas locales
 supabase/local/datos/
+
+# Fotos de evidencia: viven en Supabase Storage, no en el repositorio
+bad parking/
