@@ -52,6 +52,14 @@ const Parqueo = (() => {
     new Notification(titulo, { body: cuerpo, icon: "assets/favicon.svg" });
   }
 
+  // En las torres el piso va dentro del código: B1-P3-24 es el piso 3.
+  // No es una columna aparte porque el número de espacio ya lo determina,
+  // y así los pisos se llenan en orden sin ninguna regla extra.
+  function piso(codigo) {
+    const m = /-P(\d+)-/.exec(codigo || "");
+    return m ? `Piso ${m[1]}` : null;
+  }
+
   function estadoDeZona(libres, capacidad) {
     if (libres === 0) return { sufijo: "lleno", texto: "Llena" };
     if (capacidad > 0 && libres / capacidad <= 0.2) return { sufijo: "medio", texto: "Casi llena" };
@@ -167,23 +175,29 @@ const Parqueo = (() => {
       });
       g.dataset.zona = z.id;
 
+      // El área lleva el color propio de la zona (para distinguirla);
+      // la etiqueta lleva el del semáforo (para saber si queda sitio).
+      const estilo = (typeof ZONAS_ESTILO !== "undefined" && ZONAS_ESTILO[z.id]) || {};
       g.appendChild(crear("polygon", {
         class: "zonaMapa__area",
         points: pts.map((p) => p.join(",")).join(" "),
+        style: estilo.color ? `color:${estilo.color}` : "",
       }));
 
-      // El contador va arriba del área, sin salirse del mapa.
+      const texto = `${estilo.corto || z.nombre} · ${z.libres}`;
+      const ancho = Math.max(84, texto.length * 10.5 + 26);
+
+      // La etiqueta va arriba del área, sin salirse del mapa.
       const xs = pts.map((p) => p[0]);
       const ys = pts.map((p) => p[1]);
-      const cx = Math.min(946, Math.max(54, (Math.min(...xs) + Math.max(...xs)) / 2));
+      const medio = ancho / 2 + 6;
+      const cx = Math.min(1000 - medio, Math.max(medio, (Math.min(...xs) + Math.max(...xs)) / 2));
       const cy = Math.max(24, Math.min(ALTO_MAPA - 24, Math.min(...ys) - 22));
 
       const pill = crear("g", { class: "zonaMapa__pill", transform: `translate(${cx},${cy})` });
-      pill.appendChild(crear("rect", { x: -52, y: -17, width: 104, height: 34, rx: 17 }));
-      pill.appendChild(Object.assign(crear("text", { class: "zonaMapa__num", x: -20, y: 6 }),
-        { textContent: z.libres }));
-      pill.appendChild(Object.assign(crear("text", { class: "zonaMapa__lbl", x: 18, y: 5 }),
-        { textContent: "libres" }));
+      pill.appendChild(crear("rect", { x: -ancho / 2, y: -16, width: ancho, height: 32, rx: 16 }));
+      pill.appendChild(Object.assign(
+        crear("text", { class: "zonaMapa__texto", x: 0, y: 6 }), { textContent: texto }));
       g.appendChild(pill);
 
       capa.appendChild(g);
@@ -278,7 +292,9 @@ const Parqueo = (() => {
       const espacio = asignacion.espacios;
       const vehiculo = asignacion.vehiculos;
       $("espacioCodigo").textContent = espacio.codigo;
-      $("espacioZona").textContent = `${espacio.zonas.nombre} · ${espacio.zonas.referencia || ""}`;
+      $("espacioZona").textContent =
+        [espacio.zonas.nombre, piso(espacio.codigo), espacio.zonas.referencia]
+          .filter(Boolean).join(" · ");
       $("espacioVehiculo").textContent =
         `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.color} · placa ${vehiculo.placa}`;
       $("notaExtensiones").textContent =

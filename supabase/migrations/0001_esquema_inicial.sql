@@ -768,17 +768,30 @@ $$;
 -- ============================================================
 
 insert into public.zonas (id, nombre, referencia, orden) values
-  ('a1', 'Zona A1',  'Junto a aulas y biblioteca',                 1),
-  ('b1', 'Zona B1',  'Entrada principal, frente a administracion', 2),
-  ('pg', 'Posgrado', 'Edificio de posgrado, acceso posterior',     3);
+  ('a1',  'Zona A1',        'Junto a aulas y biblioteca',               1),
+  ('b1',  'Zona B1',        'Torre de seis niveles, entrada principal', 2),
+  ('pgt', 'Posgrado Torre', 'Torre de posgrado, seis niveles'          , 3),
+  ('pgp', 'Posgrado Plano', 'Parqueo a nivel del edificio de posgrado', 4);
 
--- Espacios numerados: A1-001..A1-120, B1-001..B1-090, PG-001..PG-045
+-- Zonas a nivel: numeracion corrida.  A1-001..A1-120, PP-001..PP-020
 insert into public.espacios (zona_id, numero, codigo)
 select 'a1', n, 'A1-' || lpad(n::text, 3, '0') from generate_series(1, 120) n
 union all
-select 'b1', n, 'B1-' || lpad(n::text, 3, '0') from generate_series(1,  90) n
-union all
-select 'pg', n, 'PG-' || lpad(n::text, 3, '0') from generate_series(1,  45) n;
+select 'pgp', n, 'PP-' || lpad(n::text, 3, '0') from generate_series(1, 20) n;
+
+-- Torres: seis pisos de cincuenta.  B1-P1-01 .. B1-P6-50
+--
+-- El piso no es una columna: se deduce del numero (1-50 es el primero,
+-- 51-100 el segundo, y asi) y va escrito en el codigo. Eso hace que
+-- solicitar_parqueo, que ya ordena por numero, llene los pisos de abajo
+-- hacia arriba sin ninguna regla extra: nadie sube al sexto teniendo
+-- espacios libres en el primero.
+insert into public.espacios (zona_id, numero, codigo)
+select z.zona, n,
+       z.prefijo || '-P' || ceil(n / 50.0)::int
+                 || '-' || lpad((((n - 1) % 50) + 1)::text, 2, '0')
+from (values ('b1', 'B1'), ('pgt', 'PT')) as z(zona, prefijo),
+     generate_series(1, 300) n;
 
 
 -- ============================================================

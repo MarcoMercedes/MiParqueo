@@ -170,11 +170,24 @@ async function main() {
   console.log("\n9. Salida y espacios deshabilitados");
   check("marcar salida devolvió el espacio", (await dispo("a1")) === "119", `(${await dispo("a1")})`);
 
+  // Las torres se llenan de abajo hacia arriba: el piso sale del numero
+  // de espacio y solicitar_parqueo ya ordena por numero.
+  const libreB1 = (await cli.query(
+    `select codigo from espacios e where e.zona_id='b1' and e.habilitado
+       and not exists (select 1 from asignaciones a where a.espacio_id = e.id
+                         and a.salida_en is null and a.vence_en > now())
+     order by e.numero limit 1`)).rows[0];
+  check("el siguiente libre de B1 es el primero del piso 1", libreB1.codigo === "B1-P1-01", `(${libreB1.codigo})`);
+  const topeB1 = (await cli.query("select codigo from espacios where zona_id='b1' order by numero desc limit 1")).rows[0];
+  check("la torre B1 llega hasta el piso 6", topeB1.codigo === "B1-P6-50", `(${topeB1.codigo})`);
+  const totB1 = (await cli.query("select count(*)::int c from espacios where zona_id='b1'")).rows[0];
+  check("B1 son seis pisos de cincuenta", totB1.c === 300, `(${totB1.c})`);
+
   await comoUsuario(cli, admin);
-  const { rows: espacios } = await cli.query("select id from espacios where zona_id='pg' limit 5");
+  const { rows: espacios } = await cli.query("select id from espacios where zona_id='pgp' limit 5");
   for (const e of espacios) await cli.query("select habilitar_espacio($1, false, 'Mantenimiento')", [e.id]);
-  const pgz = (await cli.query("select capacidad, libres from disponibilidad where id='pg'")).rows[0];
-  check("deshabilitar baja la capacidad", pgz.capacidad === "40", `(${pgz.capacidad})`);
+  const pgz = (await cli.query("select capacidad, libres from disponibilidad where id='pgp'")).rows[0];
+  check("deshabilitar 5 baja la capacidad de Posgrado Plano a 15", pgz.capacidad === "15", `(${pgz.capacidad})`);
 
   await comoUsuario(cli, beto);
   await esperaError(cli, "select habilitar_espacio($1, false, 'x')", [espacios[0].id],
@@ -188,7 +201,7 @@ async function main() {
     vistos.rowCount === 1 && vistos.rows[0].placa === "B222222",
     `(vio ${vistos.rowCount})`);
   const zonasPub = await cli.query("select id from zonas");
-  check("las zonas siguen siendo públicas", zonasPub.rowCount === 3);
+  check("las cuatro zonas siguen siendo públicas", zonasPub.rowCount === 4, `(${zonasPub.rowCount})`);
   await cli.query("reset role");
 
   console.log(`\n=== ${ok} pruebas ok, ${fallos.length} fallando ===`);
