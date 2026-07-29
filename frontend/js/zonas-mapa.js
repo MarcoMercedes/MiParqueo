@@ -1,13 +1,13 @@
 /* ============================================================
    MiParqueo · contornos de las zonas sobre el mapa
 
-   Coordenadas en unidades del viewBox 0 0 1000 669 de
-   assets/mapa_pucmm.jpg. Se dibujaron con delimitar.html: se hace
-   clic en cada esquina del parqueo y esa página devuelve este
-   mismo bloque ya formateado.
+   Cada zona es el contorno de un parqueo trazado sobre
+   assets/mapa_pucmm.jpg, esquina por esquina.
 
-   Si se cambia la foto del mapa hay que volver a delimitar: los
-   puntos están atados a esa imagen concreta.
+   Las coordenadas van en unidades del viewBox (0 0 1000 669) y no en
+   píxeles, para que el mapa encaje a cualquier tamaño de pantalla.
+   Están atadas a esa imagen: si se cambia la foto, hay que volver a
+   trazarlos.
 
    Una zona sin puntos simplemente no se dibuja en el mapa; sigue
    apareciendo en las tarjetas de disponibilidad.

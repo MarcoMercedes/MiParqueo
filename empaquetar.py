@@ -1,8 +1,9 @@
 """Arma entregable.zip con lo que hace falta para revisar el proyecto.
 
-Se excluye todo lo que no aporta a la revision: dependencias descargadas,
-el cluster de PostgreSQL que crean las pruebas, y la configuracion local
-del entorno de trabajo.
+Queda fuera lo que no aporta a la revision: dependencias descargadas, el
+cluster de PostgreSQL que crean las pruebas, la configuracion local del
+entorno, y la herramienta de delimitar zonas, que sirvio una vez para
+marcar los contornos del mapa y no forma parte de la aplicacion.
 """
 import os, zipfile, datetime
 
@@ -13,7 +14,6 @@ INCLUIR = [
     "README.md",
     "docs/ARQUITECTURA.md",
     "frontend/index.html",
-    "frontend/delimitar.html",
     "frontend/css/styles.css",
     "frontend/js/config.js",
     "frontend/js/data.js",
@@ -22,7 +22,6 @@ INCLUIR = [
     "frontend/js/perfil.js",
     "frontend/js/admin.js",
     "frontend/js/zonas-mapa.js",
-    "frontend/js/delimitar.js",
     "frontend/assets/logo-pucmm.png",
     "frontend/assets/favicon.png",
     "frontend/assets/mapa_pucmm.jpg",
