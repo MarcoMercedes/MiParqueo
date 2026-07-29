@@ -55,75 +55,63 @@ Cuentas de prueba (todas con la contrasena  hola123 ):
     jdtd0002@ce.pucmm.edu.do    Juan David Taveras
     mjma0003@ce.pucmm.edu.do    Marco Mercedes
 
-Recorrido sugerido:
-  1. Entrar como estudiante. En el mapa del campus cada zona esta
-     delimitada y muestra sus espacios libres en vivo.
-  2. Tocar una zona y reservar. El sistema asigna un espacio numerado
-     concreto por seis horas, llenando los pisos de abajo hacia arriba.
-  3. "Hay alguien en mi espacio": reportar con foto. El sistema crea el
-     reporte y reasigna otro espacio en el acto.
-  4. Entrar como administracion y revisar ese reporte con su evidencia.
-     Validarlo lo convierte en strike; a los tres, multa y suspension.
+El ciclo completo se recorre en cuatro pasos: reservar una zona desde el
+mapa, ver el espacio numerado asignado con su cuenta regresiva, reportar
+con foto a quien lo ocupe, y revisar ese reporte desde la cuenta de
+administracion. Validarlo lo convierte en strike; a los tres, multa y
+suspension.
 
 
-QUE HAY EN ESTE PAQUETE
-=======================
+CONTENIDO
+=========
 
-  README.md                 Que hace el sistema y como esta organizado
+  README.md                 Alcance del sistema y estructura del proyecto
   docs/ARQUITECTURA.md      Decisiones de diseno, modelo de datos y seguridad
 
-  frontend/                 La aplicacion. HTML, CSS y JavaScript sin
-                            frameworks ni compilacion: se abre y funciona
+  frontend/                 La aplicacion: HTML, CSS y JavaScript sin
+                            frameworks ni compilacion
 
-  supabase/migrations/      LA BASE DE DATOS. Dos scripts que la crean
-                            entera, con sus 1.200 espacios, sus reglas de
-                            negocio y su seguridad por filas
-
-  supabase/local/           Pruebas automaticas de la logica de negocio
+  supabase/migrations/      La base de datos, en dos scripts
+  supabase/local/           Pruebas de la logica de negocio
 
 
-LA BASE DE DATOS
-================
+BASE DE DATOS
+=============
 
-No se entrega una base de datos, se entrega el script que la construye.
-Correr en un PostgreSQL limpio, en este orden:
+Se entrega el script que la construye, no un volcado. Sobre un PostgreSQL
+limpio, en orden:
 
     supabase/migrations/0001_esquema_inicial.sql
     supabase/migrations/0002_ajustes.sql
 
-Eso crea las cuatro zonas, los 1.200 espacios numerados, las funciones
-que gobiernan las reservas y las politicas de acceso.
+Crea las cuatro zonas, los 1.200 espacios numerados -B1 y Posgrado Torre
+repartidos en seis pisos de cincuenta-, las funciones que gobiernan las
+reservas y las politicas de acceso por filas.
 
-El script esta escrito para Supabase. Para correrlo en cualquier otro
-PostgreSQL, ejecutar antes supabase/local/compat_postgres.sql, que crea
-las piezas que Supabase trae de fabrica.
-
-Instrucciones detalladas en supabase/README.md.
+Esta escrito para Supabase. Fuera de Supabase, ejecutar antes
+supabase/local/compat_postgres.sql. Detalles en supabase/README.md.
 
 
 PRUEBAS
 =======
 
-Las reglas de negocio estan cubiertas por 28 pruebas automaticas que
-levantan su propio PostgreSQL, sin instalar nada en el sistema:
-
     cd supabase/local
     npm install
     npm test
 
-Comprueban, entre otras cosas, que un reporte no sancione por si solo,
-que dos personas no puedan quedarse con el mismo espacio, que los pisos
-se llenen en orden y que un estudiante no vea los datos de otro.
+28 pruebas sobre una base de datos real que el propio script levanta.
+Cubren, entre otras cosas, que un reporte no sancione por si solo, que
+dos personas no puedan quedarse con el mismo espacio, que los pisos se
+llenen de abajo hacia arriba y que un estudiante no vea los datos de otro.
 
 
-COMO VER LA APLICACION SIN INTERNET
-===================================
+EJECUCION LOCAL
+===============
 
     cd frontend
     python -m http.server 4000
 
-Y abrir http://localhost:4000  (necesita conexion a la base de datos
-para mostrar datos; las credenciales ya vienen en frontend/js/config.js).
+Las credenciales de la base de datos ya vienen en frontend/js/config.js.
 """
 
 

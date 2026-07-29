@@ -1,101 +1,77 @@
-# Conectar MiParqueo a Supabase
+# Base de datos
 
-Cinco pasos. La primera vez toma unos diez minutos.
+PostgreSQL sobre Supabase, que aporta además la autenticación, el
+almacenamiento de las fotos de evidencia y el canal de tiempo real.
 
-## 1. Crear el proyecto
+## Montaje
 
-1. Entra a [supabase.com](https://supabase.com) y crea una cuenta (es gratis y
-   no pide tarjeta).
-2. **New project**: nombre `miparqueo`, región `East US` (la más cercana a
-   República Dominicana) y una contraseña fuerte para la base de datos
-   (guárdala aparte; no va en el código).
-3. Espera a que termine de aprovisionar, un par de minutos.
+1. Proyecto nuevo en Supabase, región `East US`.
+2. En el SQL Editor, ejecutar en orden:
+   - [`migrations/0001_esquema_inicial.sql`](migrations/0001_esquema_inicial.sql)
+   - [`migrations/0002_ajustes.sql`](migrations/0002_ajustes.sql)
+3. `Project Settings → API`: copiar *Project URL* y la clave *publishable*
+   a [`../frontend/js/config.js`](../frontend/js/config.js).
+4. `Authentication → URL Configuration`: *Site URL* con la dirección desde la
+   que se sirve la aplicación, y esa misma dirección seguida de `/**` en
+   *Redirect URLs*.
 
-## 2. Crear las tablas
+Queda montado el esquema completo: cuatro zonas, 1.200 espacios numerados
+—B1 y Posgrado Torre repartidos en seis pisos de cincuenta—, las funciones
+que gobiernan las reservas, las políticas de acceso por filas y el bucket
+`evidencias`.
 
-1. En el menú lateral: **SQL Editor → New query**.
-2. Copia todo el contenido de
-   [`migrations/0001_esquema_inicial.sql`](migrations/0001_esquema_inicial.sql)
-   y pégalo.
-3. **Run**. Debe decir *Success*.
+## Cuentas
 
-Eso crea las tablas, los 1.200 espacios numerados (300 por zona; B1 y
-Posgrado Torre repartidos en seis pisos de cincuenta), las reglas de negocio,
-la seguridad por filas y el bucket donde se guardan las fotos de evidencia.
+No hay autorregistro. Se crean desde `Authentication → Users` con
+*Auto Confirm User* activado.
 
-## 3. Pegar las credenciales
-
-1. **Project Settings → API**.
-2. Copia **Project URL** y la clave **anon public**.
-3. Pégalas en [`../frontend/js/config.js`](../frontend/js/config.js):
-
-```js
-window.MIPARQUEO_CONFIG = {
-  SUPABASE_URL: "https://xxxxxxxx.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOi...",
-};
-```
-
-La clave `anon` es pública por diseño: viaja al navegador de cualquiera que
-abra la página. Lo que protege los datos son las políticas RLS del script, no
-el secreto de esa clave. La clave **service_role** nunca va en el frontend ni
-en el repositorio.
-
-## 4. Autorizar la dirección de la aplicación
-
-En **Authentication → URL Configuration**, indica la dirección desde la que
-se abre la aplicación:
-
-- **Site URL**: `http://localhost:4000` (o la dirección donde la publiques)
-- **Redirect URLs**: la misma seguida de `/**`
-
-## 5. Crear las cuentas
-
-No hay autorregistro: las cuentas las crea la administración, igual que en
-cualquier sistema universitario. En **Authentication → Users → Add user**,
-con *Auto Confirm User* activado para que pueda entrar de inmediato.
-
-Después, para convertir una de ellas en administradora —los administradores
-validan reportes y deshabilitan espacios, así que nadie debe poder
-nombrarse a sí mismo— corre en el **SQL Editor**:
+El rol de administrador se otorga solo desde la base de datos: quien valida
+reportes y deshabilita espacios no puede nombrarse a sí mismo.
 
 ```sql
-update public.perfiles
-   set rol = 'admin'
- where correo = 'tucorreo@ce.pucmm.edu.do';
+update public.perfiles set rol = 'admin' where correo = '...';
 ```
 
-Al entrar con esa cuenta aparece la sección **Revisión de reportes**.
+El dominio del correo está restringido a `@pucmm.edu.do` y `@ce.pucmm.edu.do`
+por la restricción `correo_institucional` de `perfiles`, con la validación
+equivalente en el cliente.
 
----
+## Claves
 
-## Comprobar que funciona
+La clave *publishable* viaja al navegador de cualquiera que abra la página:
+es pública por diseño. Lo que limita el acceso son las políticas RLS, no el
+secreto de esa clave.
+
+La clave *secret* salta esas políticas, así que no aparece en el frontend ni
+en el repositorio.
+
+## Fuera de Supabase
+
+El esquema corre en cualquier PostgreSQL 13 o superior ejecutando antes
+[`local/compat_postgres.sql`](local/compat_postgres.sql), que crea las piezas
+que Supabase trae de fábrica: el esquema `auth` con `auth.uid()`, el esquema
+`storage`, los roles `anon` y `authenticated`, y la publicación de tiempo
+real.
 
 ```bash
-cd frontend
-python -m http.server 4000
+psql -d miparqueo -f local/compat_postgres.sql
+psql -d miparqueo -f migrations/0001_esquema_inicial.sql
+psql -d miparqueo -f migrations/0002_ajustes.sql
 ```
 
-Abre `http://localhost:4000`. Si dice **En vivo** y muestra los números reales
-de cada zona, está conectado. Si dice **Sin conexión**, revisa el paso 3.
+Lo que no viaja con el esquema es la capa de servicios —autenticación, API
+REST, tiempo real y almacenamiento—: el frontend habla HTTP contra ella, no
+directamente con PostgreSQL.
 
-Recorrido corto para ver el ciclo completo:
+## Comprobación
 
-1. Entra, registra un vehículo y solicita parqueo en A1.
-2. Te asigna un espacio (`A1-001`) y arranca el reloj de seis horas.
-3. Abre la página pública en otra ventana: A1 muestra un espacio menos.
-4. Marca la salida. El número sube al instante en la otra ventana.
+```bash
+cd ../frontend && python -m http.server 4000
+```
 
-## Notas para la presentación
+El indicador de la cabecera dice **En vivo** si la conexión está resuelta y
+**Sin conexión** si falta configurar `config.js`.
 
-- **Los proyectos gratuitos se pausan tras una semana sin actividad.** Entra al
-  panel de Supabase el día antes y reactívalo si hace falta.
-- **Solo se aceptan correos `@pucmm.edu.do` y `@ce.pucmm.edu.do`.** Para probar
-  con otro correo, comenta la restricción `correo_institucional` de la tabla
-  `perfiles` y la validación equivalente en `frontend/js/entrar.js`.
+## Aviso
 
-## Cómo se entrega la base de datos
-
-El entregable no es la base de datos en la nube, es el script que la crea.
-Cualquiera puede correr `0001_esquema_inicial.sql` en un PostgreSQL limpio y
-obtener el sistema completo con sus datos iniciales.
+Los proyectos gratuitos de Supabase se pausan tras una semana sin actividad.

@@ -797,11 +797,13 @@ from (values ('b1', 'B1'), ('pgt', 'PT')) as z(zona, prefijo),
 -- ============================================================
 -- 18. DESPUES DE CORRER ESTE SCRIPT
 -- ============================================================
--- 1) Crear tu cuenta desde la aplicacion (entrar.html).
--- 2) Convertirte en administrador, corriendo aqui mismo:
+-- 1) Ejecutar 0002_ajustes.sql.
+-- 2) Crear las cuentas en Authentication -> Users. El rol de
+--    administrador se otorga solo desde aqui:
 --
 --      update public.perfiles set rol = 'admin'
 --       where correo = 'tucorreo@ce.pucmm.edu.do';
 --
--- 3) Pegar URL y clave anon en frontend/js/config.js
+-- 3) Copiar la URL del proyecto y la clave publishable a
+--    frontend/js/config.js
 -- ============================================================
