@@ -8,3 +8,7 @@ supabase/local/datos/
 
 # Fotos de evidencia: viven en Supabase Storage, no en el repositorio
 bad parking/
+
+# Notas y configuracion local del entorno de trabajo
+.claude/
+CONTEXTO_MIPARQUEO.txt

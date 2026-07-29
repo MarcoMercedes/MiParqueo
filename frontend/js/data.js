@@ -82,20 +82,6 @@ const MiParqueo = (() => {
       }
     },
 
-    // Enlace mágico: el usuario recibe un correo y entra sin contraseña.
-    // También sirve para crear la cuenta la primera vez.
-    async enviarEnlace(correo, nombre, destino) {
-      exigirConfig();
-      const { error } = await db.auth.signInWithOtp({
-        email: correo.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: destino,
-          data: nombre ? { nombre: nombre.trim() } : undefined,
-        },
-      });
-      if (error) throw fallo(error);
-    },
-
     async cerrarSesion() {
       exigirConfig();
       await db.auth.signOut();

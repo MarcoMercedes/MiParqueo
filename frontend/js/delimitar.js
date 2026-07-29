@@ -196,7 +196,7 @@
   document.getElementById("btnCopiar").addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(salida.value);
-      aviso.textContent = "Copiado. Pégaselo en js/zonas-mapa.js.";
+      aviso.textContent = "Copiado. Pégalo en js/zonas-mapa.js para dejarlo fijo.";
     } catch {
       salida.select();
       aviso.textContent = "Selecciónalo y cópialo con Ctrl+C.";

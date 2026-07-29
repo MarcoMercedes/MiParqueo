@@ -107,30 +107,12 @@
 
   const formEntrar = $("formEntrar");
   const avisoAcceso = $("avisoAcceso");
-  let modoAcceso = "clave"; // "clave" | "enlace"
 
   function avisarAcceso(texto, tipo) {
     avisoAcceso.textContent = texto;
     avisoAcceso.className = `aviso aviso--${tipo}`;
     avisoAcceso.hidden = false;
   }
-
-  function pintarModoAcceso() {
-    const conClave = modoAcceso === "clave";
-    $("campoClave").hidden = !conClave;
-    $("campoNombre").hidden = conClave;
-    $("clave").required = conClave;
-    $("btnEnviar").textContent = conClave ? "Entrar" : "Enviarme el enlace";
-    $("btnAlternar").textContent = conClave
-      ? "¿Primera vez? Entrar con un enlace por correo"
-      : "Ya tengo contraseña";
-    avisoAcceso.hidden = true;
-  }
-
-  $("btnAlternar").addEventListener("click", () => {
-    modoAcceso = modoAcceso === "clave" ? "enlace" : "clave";
-    pintarModoAcceso();
-  });
 
   formEntrar.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -141,37 +123,27 @@
       $("correo").focus();
       return;
     }
+    if (!$("clave").value) {
+      avisarAcceso("Escribe tu contraseña.", "error");
+      $("clave").focus();
+      return;
+    }
 
     const boton = $("btnEnviar");
-    const original = boton.textContent;
     boton.disabled = true;
-    boton.textContent = modoAcceso === "clave" ? "Entrando…" : "Enviando…";
+    boton.textContent = "Entrando…";
 
     try {
-      if (modoAcceso === "clave") {
-        if (!$("clave").value) {
-          avisarAcceso("Escribe tu contraseña.", "error");
-          return;
-        }
-        await MiParqueo.entrarConClave(correo, $("clave").value);
-        formEntrar.reset();
-        avisoAcceso.hidden = true;
-        await releerPerfil();
-        irA(vistaPorDefecto());
-        return;
-      }
-
-      await MiParqueo.enviarEnlace(correo, $("nombre").value, location.href.split("#")[0]);
-      avisarAcceso(
-        `Listo. Te enviamos un enlace a ${correo}. Ábrelo desde este mismo dispositivo.`,
-        "ok"
-      );
+      await MiParqueo.entrarConClave(correo, $("clave").value);
       formEntrar.reset();
+      avisoAcceso.hidden = true;
+      await releerPerfil();
+      irA(vistaPorDefecto());
     } catch (error) {
       avisarAcceso(error.message, "error");
     } finally {
       boton.disabled = false;
-      boton.textContent = original;
+      boton.textContent = "Entrar";
     }
   });
 
@@ -199,8 +171,6 @@
   // ---------- Arranque ----------
 
   (async function iniciar() {
-    pintarModoAcceso();
-
     if (!MiParqueo.configurado) {
       avisarAcceso(
         "La aplicación todavía no está conectada a Supabase. Completa frontend/js/config.js.",

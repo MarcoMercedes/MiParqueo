@@ -216,28 +216,16 @@
                    placeholder="tunombre@ce.pucmm.edu.do" autocomplete="email" required />
           </label>
 
-          <label class="campo" id="campoClave">
+          <label class="campo">
             <span class="campo__etiqueta">Contraseña</span>
             <input class="campo__input" type="password" id="clave" name="clave"
-                   autocomplete="current-password" />
-          </label>
-
-          <label class="campo" id="campoNombre" hidden>
-            <span class="campo__etiqueta">Nombre completo</span>
-            <input class="campo__input" type="text" id="nombre" name="nombre"
-                   placeholder="Como aparece en tu carnet" autocomplete="name" />
+                   autocomplete="current-password" required />
           </label>
 
           <button class="btn btn--primary btn--bloque" type="submit" id="btnEnviar">Entrar</button>
         </form>
 
         <p class="aviso" id="avisoAcceso" hidden></p>
-
-        <p class="tarjeta__alterna">
-          <button class="enlace" type="button" id="btnAlternar">
-            ¿Primera vez? Entrar con un enlace por correo
-          </button>
-        </p>
 
         <p class="tarjeta__pie tarjeta__pie--nota">
           Campus Santo Tomás de Aquino · Santo Domingo
