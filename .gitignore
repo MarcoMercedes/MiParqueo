@@ -12,3 +12,6 @@ bad parking/
 # Notas y configuracion local del entorno de trabajo
 .claude/
 CONTEXTO_MIPARQUEO.txt
+
+# Paquete de entrega: se genera con empaquetar.py
+entregable.zip

@@ -9,11 +9,11 @@ espacio asignado, lo reportas con foto y el sistema te da otro al instante.
 
 ## Qué hace
 
-- **Disponibilidad en vivo por zona** (A1, B1 y Posgrado), pública y sin
-  necesidad de cuenta. Semáforo: verde con espacios, ámbar casi llena, rojo
-  llena.
-- **Acceso con correo institucional**, sin contraseñas: llega un enlace y
-  entras.
+- **Mapa del campus con las zonas delimitadas** (A1, B1, Posgrado Torre y
+  Posgrado Plano), cada una con sus espacios libres en vivo. Semáforo: verde
+  con espacios, ámbar casi llena, rojo llena.
+- **Acceso con correo institucional y contraseña.** Las cuentas las crea la
+  administración; no hay autorregistro.
 - **Padrón de vehículos**: placa, marca, modelo y color.
 - **Asignación de espacios numerados** (`A1-037`) por seis horas, prorrogables
   las veces que haga falta. No puedes pedir otro hasta marcar tu salida.

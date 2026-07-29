@@ -19,9 +19,9 @@ Cinco pasos. La primera vez toma unos diez minutos.
    y pégalo.
 3. **Run**. Debe decir *Success*.
 
-Eso crea las tablas, los 255 espacios numerados (120 en A1, 90 en B1 y 45 en
-Posgrado), las reglas de negocio, la seguridad por filas y el bucket donde se
-guardan las fotos de evidencia.
+Eso crea las tablas, los 1.200 espacios numerados (300 por zona; B1 y
+Posgrado Torre repartidos en seis pisos de cincuenta), las reglas de negocio,
+la seguridad por filas y el bucket donde se guardan las fotos de evidencia.
 
 ## 3. Pegar las credenciales
 
@@ -41,27 +41,23 @@ abra la página. Lo que protege los datos son las políticas RLS del script, no
 el secreto de esa clave. La clave **service_role** nunca va en el frontend ni
 en el repositorio.
 
-## 4. Permitir el enlace mágico
+## 4. Autorizar la dirección de la aplicación
 
-En **Authentication → URL Configuration**, agrega a *Redirect URLs* la
-dirección desde la que vas a abrir la aplicación:
+En **Authentication → URL Configuration**, indica la dirección desde la que
+se abre la aplicación:
 
-- Pruebas locales: `http://localhost:4000/**`
-- Si la publicas: `https://tuusuario.github.io/**`
+- **Site URL**: `http://localhost:4000` (o la dirección donde la publiques)
+- **Redirect URLs**: la misma seguida de `/**`
 
-Sin esto, el enlace que llega al correo devuelve un error de redirección.
+## 5. Crear las cuentas
 
-> El plan gratuito envía pocos correos por hora. Para una demo con varias
-> cuentas, créalas con antelación o configura tu propio SMTP en
-> **Authentication → Emails**.
+No hay autorregistro: las cuentas las crea la administración, igual que en
+cualquier sistema universitario. En **Authentication → Users → Add user**,
+con *Auto Confirm User* activado para que pueda entrar de inmediato.
 
-## 5. Hacerte administrador
-
-Los administradores validan reportes, resuelven apelaciones y deshabilitan
-espacios. A propósito no hay forma de auto-nombrarse desde la aplicación.
-
-1. Abre la aplicación y crea tu cuenta con el correo institucional.
-2. Vuelve al **SQL Editor** y corre:
+Después, para convertir una de ellas en administradora —los administradores
+validan reportes y deshabilitan espacios, así que nadie debe poder
+nombrarse a sí mismo— corre en el **SQL Editor**:
 
 ```sql
 update public.perfiles
@@ -69,7 +65,7 @@ update public.perfiles
  where correo = 'tucorreo@ce.pucmm.edu.do';
 ```
 
-3. Recarga: aparece el enlace **Administración** en la barra superior.
+Al entrar con esa cuenta aparece la sección **Revisión de reportes**.
 
 ---
 

@@ -178,8 +178,8 @@
       );
       $("btnEnviar").disabled = true;
     } else {
-      // Se espera a saber si hay sesión antes de decidir la vista: así el
-      // enlace mágico del correo no cae en la pantalla de acceso.
+      // Se espera a saber si hay sesión antes de decidir la vista: si no,
+      // quien ya entró vería la pantalla de acceso por un instante.
       await releerPerfil();
 
       if (esEstudiante()) {
